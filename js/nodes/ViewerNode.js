@@ -123,9 +123,6 @@ export class ViewerNode extends Node {
     const canvas = this.element.querySelector(`#canvas-container-${this.id}`);
     if (img) img.style.display = "none";
     if (canvas) canvas.style.display = "flex";
-
-    // Restrict dragging to only the viewer-bar when canvas is active
-    this.dragHandle = ".viewer-bar";
   }
 
   showImage() {
@@ -133,8 +130,9 @@ export class ViewerNode extends Node {
     const canvas = this.element.querySelector(`#canvas-container-${this.id}`);
     if (img) img.style.display = "block";
     if (canvas) canvas.style.display = "none";
+  }
 
-    // Re-enable full node dragging
-    this.dragHandle = null;
+  setDragHandle(handle) {
+    this.dragHandle = handle;
   }
 }

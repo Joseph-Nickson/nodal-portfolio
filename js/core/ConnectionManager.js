@@ -53,13 +53,19 @@ export class ConnectionManager {
 
     // Get port positions relative to the workspace (not screen)
     // Since SVG is now inside workspace, use node positions directly
-    // Output port is at bottom: -5px (so at y + height)
-    // Input port is at top: -5px (so at y)
+    // Need to use actual DOM height, not node.height (which is just min-height)
+    const fromActualHeight = fromNode.element.offsetHeight;
+    const toActualHeight = toNode.element.offsetHeight;
+
+    // Output port: 10px circle at bottom: -5px
+    // Center of port is at y + height (5px below bottom edge, 5px of radius above that = at the edge)
+    // Input port: 10px circle at top: -5px
+    // Center of port is at y (5px above top edge, 5px of radius below that = at the edge)
 
     const x1 = fromNode.x + fromNode.width / 2;
-    const y1 = fromNode.y + fromNode.height;
+    const y1 = fromNode.y + fromActualHeight; // Connect to center of output port
     const x2 = toNode.x + toNode.width / 2;
-    const y2 = toNode.y;
+    const y2 = toNode.y; // Connect to center of input port
 
     // Create smooth curve
     const distance = Math.abs(y2 - y1);
@@ -113,7 +119,8 @@ export class ConnectionManager {
           ${toolOptions}
         </div>
       `;
-      document.body.appendChild(emblem);
+      // Append to workspace so it inherits transform
+      this.canvas.getWorkspace().appendChild(emblem);
       this.emblems.set(fromId, emblem);
 
       // Add click handlers
@@ -128,17 +135,12 @@ export class ConnectionManager {
       });
     }
 
-    // Convert workspace coordinates to screen coordinates for the emblem
-    const screenPos = this.canvas.worldToScreen(midX, midY);
-
-    // Position emblem at midpoint with canvas transform applied
-    emblem.style.position = "fixed";
-    emblem.style.left = `${screenPos.x - 20}px`;
-    emblem.style.top = `${screenPos.y - 20}px`;
-    emblem.style.zIndex = "2"; // Behind nodes (z-index: 10)
-    emblem.style.transform = `scale(${this.canvas.scale})`;
-    emblem.style.transformOrigin = "center";
-    emblem.style.setProperty("--emblem-scale", this.canvas.scale);
+    // Position emblem at midpoint in workspace coordinates
+    // No need to convert to screen coords since it's now inside workspace
+    emblem.style.position = "absolute";
+    emblem.style.left = `${midX - 20}px`;
+    emblem.style.top = `${midY - 20}px`;
+    emblem.style.zIndex = "100";
 
     // Hide emblem if cable is too short
     if (cableLength < minCableLengthForEmblem) {

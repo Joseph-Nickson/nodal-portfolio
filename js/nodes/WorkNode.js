@@ -117,8 +117,8 @@ export class WorkNode extends Node {
     if (items.length === 0) {
       this.setContent(`
         <div class="node-list">
-          <div class="node-list-item node-list-item-back" data-action="back">
-            <span class="item-title">&lt; BACK</span>
+          <div class="node-list-item node-list-item-back">
+            <span class="back-arrow" data-action="back">&lt;</span>
           </div>
           <div class="node-empty">No items in ${this.currentCategory}</div>
         </div>
@@ -126,8 +126,8 @@ export class WorkNode extends Node {
     } else {
       this.setContent(`
         <div class="node-list">
-          <div class="node-list-item node-list-item-back" data-action="back">
-            <span class="item-title">&lt; BACK</span>
+          <div class="node-list-item node-list-item-back">
+            <span class="back-arrow" data-action="back">&lt;</span>
           </div>
           ${items
             .map(
@@ -155,10 +155,10 @@ export class WorkNode extends Node {
       });
     }
 
-    // Back button
-    const backBtn = this.element.querySelector(".node-list-item-back");
-    if (backBtn) {
-      backBtn.onclick = (e) => {
+    // Back arrow button (only the < is clickable, bar is draggable)
+    const backArrow = this.element.querySelector(".back-arrow");
+    if (backArrow) {
+      backArrow.onclick = (e) => {
         e.stopPropagation();
         this.currentLevel = "categories";
         this.currentCategory = null;

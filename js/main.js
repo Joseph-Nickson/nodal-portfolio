@@ -175,57 +175,15 @@ class PortfolioApp {
     // Create unique ID for this tool node
     const toolNodeId = `tool-${this.toolNodeCounter++}`;
 
-    // Position tool node between the two nodes with smart positioning
-    const centerX = (fromNode.x + toNode.x) / 2;
-    const centerY = (fromNode.y + toNode.y) / 2;
-    let toolX = centerX;
-    let toolY = centerY;
-
-    // Check for overlapping nodes and adjust position
+    // Position tool node at cable midpoint (where + emblem is)
+    const midX = (fromNode.x + toNode.x) / 2;
+    const midY = (fromNode.y + toNode.y) / 2;
     const toolWidth = 140;
     const toolHeight = 60;
-    const minDistance = 20; // Minimum distance from other nodes
-
-    let attempts = 0;
-    const maxAttempts = 8;
-
-    while (attempts < maxAttempts) {
-      let hasOverlap = false;
-
-      // Check against all existing nodes
-      for (const [nodeId, node] of this.stateManager.state.nodes) {
-        if (nodeId === fromId || nodeId === toId) continue;
-
-        // Check if rectangles overlap with padding
-        const overlapX =
-          toolX < node.x + node.width + minDistance &&
-          toolX + toolWidth + minDistance > node.x;
-        const overlapY =
-          toolY < node.y + node.height + minDistance &&
-          toolY + toolHeight + minDistance > node.y;
-
-        if (overlapX && overlapY) {
-          hasOverlap = true;
-          break;
-        }
-      }
-
-      // If no overlap, we're done
-      if (!hasOverlap) {
-        break;
-      }
-
-      // Try offset positions in a circular pattern
-      attempts++;
-      const angle = (attempts * Math.PI) / 4;
-      const offset = 100;
-      toolX = centerX + Math.cos(angle) * offset;
-      toolY = centerY + Math.sin(angle) * offset;
-    }
 
     const toolNode = new ToolNode(toolNodeId, this.stateManager, toolType, {
-      x: toolX - 70,
-      y: toolY - 30,
+      x: midX - toolWidth / 2,
+      y: midY - toolHeight / 2,
       onRemoveCallback: (id) => this.handleToolNodeRemoval(id),
     });
 
@@ -251,9 +209,13 @@ class PortfolioApp {
     this.toolNodes.set(toolNodeId, toolNode);
 
     // Update connections: fromId -> tool -> toId
+    // Only disconnect the specific connection fromId -> toId
     this.stateManager.disconnectNodes(fromId);
     this.stateManager.connectNodes(fromId, toolNodeId);
     this.stateManager.connectNodes(toolNodeId, toId);
+
+    // Note: toId's outgoing connections are preserved automatically
+    // since they're keyed by toId in the connections Map
   }
 }
 

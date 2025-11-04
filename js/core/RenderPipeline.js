@@ -26,7 +26,13 @@ export class RenderPipeline {
     const index = this.tools.indexOf(tool);
     if (index > -1) {
       this.tools.splice(index, 1);
-      this.render();
+
+      // If no tools left, show the image instead of canvas
+      if (this.tools.length === 0) {
+        this.viewerNode.showImage();
+      } else {
+        this.render();
+      }
     }
   }
 
@@ -64,15 +70,16 @@ export class RenderPipeline {
    * Get or create the canvas element
    */
   getCanvas() {
-    if (!this.canvas) {
+    // Check if canvas exists and is still in the DOM
+    if (!this.canvas || !this.canvas.isConnected) {
       const container = this.viewerNode.getCanvasContainer();
-      this.canvas = document.createElement('canvas');
-      this.canvas.style.display = 'block';
-      this.canvas.style.maxWidth = '100%';
-      this.canvas.style.maxHeight = '100%';
-      container.innerHTML = '';
+      this.canvas = document.createElement("canvas");
+      this.canvas.style.display = "block";
+      this.canvas.style.maxWidth = "100%";
+      this.canvas.style.maxHeight = "100%";
+      container.innerHTML = "";
       container.appendChild(this.canvas);
-      this.ctx = this.canvas.getContext('2d', { willReadFrequently: true });
+      this.ctx = this.canvas.getContext("2d", { willReadFrequently: true });
     }
     return this.canvas;
   }
@@ -86,12 +93,12 @@ export class RenderPipeline {
     const canvas = this.getCanvas();
 
     // Calculate scaled size
-    const maxWidth = 600;
-    const maxHeight = 400;
+    const maxWidth = 700;
+    const maxHeight = 450;
     const scale = Math.min(
       maxWidth / this.sourceImage.width,
       maxHeight / this.sourceImage.height,
-      1
+      1,
     );
 
     canvas.width = this.sourceImage.width * scale;
@@ -100,12 +107,16 @@ export class RenderPipeline {
     // Show canvas in viewer
     this.viewerNode.showCanvas();
 
-    // Start with the source image
-    this.ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // Start with the source image (don't clear to avoid flash)
     this.ctx.drawImage(this.sourceImage, 0, 0, canvas.width, canvas.height);
 
     // Get current image data
-    this.currentImageData = this.ctx.getImageData(0, 0, canvas.width, canvas.height);
+    this.currentImageData = this.ctx.getImageData(
+      0,
+      0,
+      canvas.width,
+      canvas.height,
+    );
 
     // Apply each tool in sequence
     for (const tool of this.tools) {
@@ -114,7 +125,7 @@ export class RenderPipeline {
         this.currentImageData = await tool.process(
           this.currentImageData,
           this.ctx,
-          canvas
+          canvas,
         );
       }
     }
@@ -127,7 +138,7 @@ export class RenderPipeline {
    * Clean up resources
    */
   cleanup() {
-    this.tools.forEach(tool => {
+    this.tools.forEach((tool) => {
       if (tool.cleanup) tool.cleanup();
     });
     this.tools = [];

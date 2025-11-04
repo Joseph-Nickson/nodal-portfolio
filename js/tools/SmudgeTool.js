@@ -13,6 +13,8 @@ export class SmudgeTool extends Tool {
   activate(viewerNode) {
     super.activate(viewerNode);
     this.viewerNode = viewerNode;
+    // Restrict dragging to only the viewer-bar for interactive canvas
+    viewerNode.setDragHandle(".viewer-bar");
   }
 
   /**
@@ -48,6 +50,11 @@ export class SmudgeTool extends Tool {
     if (this.sketch) {
       this.sketch.remove();
       this.sketch = null;
+    }
+    // Re-enable full node dragging when smudge is removed
+    if (this.viewerNode) {
+      this.viewerNode.setDragHandle(null);
+      this.viewerNode = null;
     }
     this.currentImageData = null;
   }

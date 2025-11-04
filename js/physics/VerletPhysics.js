@@ -54,9 +54,7 @@ export class Stick {
     this.p1 = p1;
     this.p2 = p2;
     // If no length specified, use current distance
-    this.length = length || Math.sqrt(
-      (p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2
-    );
+    this.length = length || Math.sqrt((p2.x - p1.x) ** 2 + (p2.y - p1.y) ** 2);
     this.stiffness = 0.5; // 0-1, higher = more rigid
   }
 
@@ -91,143 +89,147 @@ export class Ragdoll {
   }
 
   createBody(centerX, centerY, scale) {
-    // Dimensions
-    const headR = 15 * scale;
-    const torsoH = 40 * scale;
-    const armL = 30 * scale;
-    const legL = 35 * scale;
+    // Store scale for emoji sizing
+    this.scale = scale;
 
-    // Head (pinned at top - attached to viewer)
-    const head = new Point(centerX, centerY - torsoH / 2 - headR, true);
-    this.points.push(head);
+    // Dimensions - simplified torso as single box
+    const headR = 20 * scale;
+    const torsoW = 24 * scale; // Torso width
+    const torsoH = 50 * scale; // Torso height
+    const armL = 35 * scale;
+    const legL = 40 * scale;
 
-    // Neck
-    const neck = new Point(centerX, centerY - torsoH / 2);
-    this.points.push(neck);
+    // Head (moveable - drag from here for physics)
+    this.head = new Point(centerX, centerY - torsoH / 2 - headR, false);
+    this.head.radius = 10; // Larger radius for easier grabbing
+    this.points.push(this.head);
 
-    // Shoulders
-    const shoulderL = new Point(centerX - 12 * scale, centerY - torsoH / 2 + 5 * scale);
-    const shoulderR = new Point(centerX + 12 * scale, centerY - torsoH / 2 + 5 * scale);
-    this.points.push(shoulderL, shoulderR);
+    // Neck connection
+    this.neck = new Point(centerX, centerY - torsoH / 2);
+    this.points.push(this.neck);
 
-    // Hips
-    const hipL = new Point(centerX - 8 * scale, centerY + torsoH / 2);
-    const hipR = new Point(centerX + 8 * scale, centerY + torsoH / 2);
-    this.points.push(hipL, hipR);
+    // Torso corners (simplified to 4 corners of shirt box)
+    const torsoTop = centerY - torsoH / 2;
+    const torsoBottom = centerY + torsoH / 2;
 
-    // Left arm
-    const elbowL = new Point(shoulderL.x - armL * 0.5, shoulderL.y + armL * 0.3);
-    const handL = new Point(shoulderL.x - armL, shoulderL.y + armL * 0.6);
-    this.points.push(elbowL, handL);
+    this.shoulderL = new Point(centerX - torsoW / 2, torsoTop);
+    this.shoulderR = new Point(centerX + torsoW / 2, torsoTop);
+    this.hipL = new Point(centerX - torsoW / 2, torsoBottom);
+    this.hipR = new Point(centerX + torsoW / 2, torsoBottom);
+    this.points.push(this.shoulderL, this.shoulderR, this.hipL, this.hipR);
 
-    // Right arm
-    const elbowR = new Point(shoulderR.x + armL * 0.5, shoulderR.y + armL * 0.3);
-    const handR = new Point(shoulderR.x + armL, shoulderR.y + armL * 0.6);
-    this.points.push(elbowR, handR);
+    // Left arm (attached to shoulder corner)
+    this.elbowL = new Point(
+      this.shoulderL.x - armL * 0.5,
+      this.shoulderL.y + armL * 0.4,
+    );
+    this.handL = new Point(
+      this.shoulderL.x - armL,
+      this.shoulderL.y + armL * 0.8,
+    );
+    this.points.push(this.elbowL, this.handL);
 
-    // Left leg
-    const kneeL = new Point(hipL.x, hipL.y + legL * 0.5);
-    const footL = new Point(hipL.x, hipL.y + legL);
-    this.points.push(kneeL, footL);
+    // Right arm (attached to shoulder corner)
+    this.elbowR = new Point(
+      this.shoulderR.x + armL * 0.5,
+      this.shoulderR.y + armL * 0.4,
+    );
+    this.handR = new Point(
+      this.shoulderR.x + armL,
+      this.shoulderR.y + armL * 0.8,
+    );
+    this.points.push(this.elbowR, this.handR);
 
-    // Right leg
-    const kneeR = new Point(hipR.x, hipR.y + legL * 0.5);
-    const footR = new Point(hipR.x, hipR.y + legL);
-    this.points.push(kneeR, footR);
+    // Left leg (attached to hip corner)
+    this.kneeL = new Point(this.hipL.x, this.hipL.y + legL * 0.5);
+    this.footL = new Point(this.hipL.x, this.hipL.y + legL);
+    this.points.push(this.kneeL, this.footL);
+
+    // Right leg (attached to hip corner)
+    this.kneeR = new Point(this.hipR.x, this.hipR.y + legL * 0.5);
+    this.footR = new Point(this.hipR.x, this.hipR.y + legL);
+    this.points.push(this.kneeR, this.footR);
 
     // Create constraints (sticks)
     // Head to neck
-    this.sticks.push(new Stick(head, neck));
+    this.sticks.push(new Stick(this.head, this.neck));
 
-    // Spine
-    this.sticks.push(new Stick(neck, shoulderL, 12 * scale));
-    this.sticks.push(new Stick(neck, shoulderR, 12 * scale));
-    this.sticks.push(new Stick(shoulderL, hipL, torsoH * 0.6));
-    this.sticks.push(new Stick(shoulderR, hipR, torsoH * 0.6));
-    this.sticks.push(new Stick(hipL, hipR, 16 * scale));
-    this.sticks.push(new Stick(shoulderL, shoulderR, 24 * scale));
+    // Neck to torso top
+    this.sticks.push(new Stick(this.neck, this.shoulderL));
+    this.sticks.push(new Stick(this.neck, this.shoulderR));
+
+    // Torso box (rigid rectangular shape)
+    this.sticks.push(new Stick(this.shoulderL, this.shoulderR, torsoW)); // Top
+    this.sticks.push(new Stick(this.hipL, this.hipR, torsoW)); // Bottom
+    this.sticks.push(new Stick(this.shoulderL, this.hipL, torsoH)); // Left side
+    this.sticks.push(new Stick(this.shoulderR, this.hipR, torsoH)); // Right side
+    this.sticks.push(new Stick(this.shoulderL, this.hipR)); // Cross-brace
+    this.sticks.push(new Stick(this.shoulderR, this.hipL)); // Cross-brace
 
     // Left arm
-    this.sticks.push(new Stick(shoulderL, elbowL));
-    this.sticks.push(new Stick(elbowL, handL));
+    this.sticks.push(new Stick(this.shoulderL, this.elbowL));
+    this.sticks.push(new Stick(this.elbowL, this.handL));
 
     // Right arm
-    this.sticks.push(new Stick(shoulderR, elbowR));
-    this.sticks.push(new Stick(elbowR, handR));
+    this.sticks.push(new Stick(this.shoulderR, this.elbowR));
+    this.sticks.push(new Stick(this.elbowR, this.handR));
 
     // Left leg
-    this.sticks.push(new Stick(hipL, kneeL));
-    this.sticks.push(new Stick(kneeL, footL));
+    this.sticks.push(new Stick(this.hipL, this.kneeL));
+    this.sticks.push(new Stick(this.kneeL, this.footL));
 
     // Right leg
-    this.sticks.push(new Stick(hipR, kneeR));
-    this.sticks.push(new Stick(kneeR, footR));
+    this.sticks.push(new Stick(this.hipR, this.kneeR));
+    this.sticks.push(new Stick(this.kneeR, this.footR));
   }
 
   update(dt, gravity, bounds) {
     // Update points with physics
-    this.points.forEach(point => {
+    this.points.forEach((point) => {
       point.update(dt, gravity);
       point.constrain(bounds);
     });
 
     // Solve constraints multiple times for stability
     for (let i = 0; i < 3; i++) {
-      this.sticks.forEach(stick => stick.update());
+      this.sticks.forEach((stick) => stick.update());
     }
   }
 
   render(ctx) {
     // Draw sticks (limbs)
-    ctx.strokeStyle = '#1a1a1a';
+    ctx.strokeStyle = "#1a1a1a";
     ctx.lineWidth = 4;
-    ctx.lineCap = 'round';
+    ctx.lineCap = "round";
 
-    this.sticks.forEach(stick => {
+    this.sticks.forEach((stick) => {
       ctx.beginPath();
       ctx.moveTo(stick.p1.x, stick.p1.y);
       ctx.lineTo(stick.p2.x, stick.p2.y);
       ctx.stroke();
     });
 
-    // Draw points (joints)
-    this.points.forEach(point => {
-      ctx.fillStyle = point.pinned ? '#f39c12' : '#1a1a1a';
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
-      ctx.fill();
+    // Draw emoji body parts
+    const fontSize = 20 * this.scale;
+    ctx.font = `${fontSize}px Arial`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
 
-      // Outline
-      ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-    });
+    // Head
+    ctx.fillText("😊", this.head.x, this.head.y);
 
-    // Draw head as circle
-    const head = this.points[0];
-    ctx.fillStyle = '#f39c12';
-    ctx.beginPath();
-    ctx.arc(head.x, head.y, 15, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.strokeStyle = '#1a1a1a';
-    ctx.lineWidth = 3;
-    ctx.stroke();
+    // Hands
+    ctx.fillText("✋", this.handL.x, this.handL.y);
+    ctx.fillText("✋", this.handR.x, this.handR.y);
 
-    // Draw simple face
-    ctx.fillStyle = '#1a1a1a';
-    // Eyes
-    ctx.beginPath();
-    ctx.arc(head.x - 5, head.y - 2, 2, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(head.x + 5, head.y - 2, 2, 0, Math.PI * 2);
-    ctx.fill();
-    // Smile
-    ctx.strokeStyle = '#1a1a1a';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.arc(head.x, head.y + 3, 6, 0, Math.PI);
-    ctx.stroke();
+    // Feet
+    ctx.fillText("👟", this.footL.x, this.footL.y);
+    ctx.fillText("👟", this.footR.x, this.footR.y);
+
+    // Torso (body)
+    const torsoX = (this.shoulderL.x + this.shoulderR.x) / 2;
+    const torsoY = (this.shoulderL.y + this.hipL.y) / 2;
+    ctx.fillText("👕", torsoX, torsoY);
   }
 
   startDrag(x, y) {

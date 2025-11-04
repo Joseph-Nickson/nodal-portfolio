@@ -1,6 +1,6 @@
 // RagdollTool - Physics-based ragdoll that responds to viewer movement
-import { Tool } from './Tool.js';
-import { Ragdoll } from '../physics/VerletPhysics.js';
+import { Tool } from "./Tool.js";
+import { Ragdoll } from "../physics/VerletPhysics.js";
 
 export class RagdollTool extends Tool {
   constructor() {
@@ -39,10 +39,11 @@ export class RagdollTool extends Tool {
 
     // Create ragdoll if it doesn't exist
     if (!this.ragdoll) {
-      // Position ragdoll at top-center of canvas
-      const headX = canvas.width / 2;
-      const headY = 40;
-      this.ragdoll = new Ragdoll(headX, headY, 1);
+      // Position ragdoll at center of canvas (centerY is the torso center)
+      const centerX = canvas.width / 2;
+      const centerY = canvas.height / 2;
+      // Scale ragdoll to be almost as tall as viewer (450px canvas)
+      this.ragdoll = new Ragdoll(centerX, centerY, 3.5);
 
       // Setup mouse interaction
       this.setupMouseInteraction();
@@ -61,7 +62,7 @@ export class RagdollTool extends Tool {
 
     const bounds = {
       width: canvas.width,
-      height: canvas.height
+      height: canvas.height,
     };
 
     this.ragdoll.update(dt, this.gravity, bounds);
@@ -80,9 +81,9 @@ export class RagdollTool extends Tool {
     const dx = this.viewerNode.x - this.lastViewerX;
     const dy = this.viewerNode.y - this.lastViewerY;
 
-    // Apply acceleration to gravity based on movement
+    // Apply acceleration to gravity based on movement (increased impact)
     // When viewer moves right, gravity pulls left (inertia)
-    const accelFactor = 30;
+    const accelFactor = 100; // Increased from 30 for stronger effect
     this.gravity.x = -dx * accelFactor;
     this.gravity.y = 400 - dy * accelFactor; // Base gravity + movement
 
@@ -98,11 +99,11 @@ export class RagdollTool extends Tool {
       const rect = this.canvas.getBoundingClientRect();
       return {
         x: e.clientX - rect.left,
-        y: e.clientY - rect.top
+        y: e.clientY - rect.top,
       };
     };
 
-    this.canvas.addEventListener('mousedown', (e) => {
+    this.canvas.addEventListener("mousedown", (e) => {
       const pos = getMousePos(e);
       if (this.ragdoll.startDrag(pos.x, pos.y)) {
         this.isMouseDown = true;
@@ -110,7 +111,7 @@ export class RagdollTool extends Tool {
       }
     });
 
-    this.canvas.addEventListener('mousemove', (e) => {
+    this.canvas.addEventListener("mousemove", (e) => {
       if (this.isMouseDown) {
         const pos = getMousePos(e);
         this.ragdoll.drag(pos.x, pos.y);
@@ -125,8 +126,8 @@ export class RagdollTool extends Tool {
       }
     };
 
-    this.canvas.addEventListener('mouseup', stopDragging);
-    this.canvas.addEventListener('mouseleave', stopDragging);
+    this.canvas.addEventListener("mouseup", stopDragging);
+    this.canvas.addEventListener("mouseleave", stopDragging);
   }
 
   startAnimation() {

@@ -88,6 +88,16 @@ export class Canvas {
     this.workspace.addEventListener(
       "wheel",
       (e) => {
+        // Check if scrolling inside a scrollable element (like node-list)
+        let target = e.target;
+        while (target && target !== this.workspace) {
+          if (target.classList && target.classList.contains("node-list")) {
+            // Allow default scroll behavior for lists
+            return;
+          }
+          target = target.parentElement;
+        }
+
         e.preventDefault();
 
         // Trackpad pinch zoom (ctrlKey is set for pinch gestures)
