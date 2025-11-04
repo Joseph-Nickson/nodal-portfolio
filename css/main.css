@@ -1,0 +1,594 @@
+/* Portfolio System - Consolidated Styles */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-color: #f5f3f0;
+    --node-bg: #ffffff;
+    --node-border: #1a1a1a;
+    --text-color: #1a1a1a;
+    --accent-orange: #f39c12;
+    --dot-color: rgba(26, 26, 26, 0.15);
+    --grid-size: 20px;
+}
+
+body {
+    font-family: "Courier New", Courier, monospace;
+    background-color: var(--bg-color);
+    overflow: hidden;
+    height: 100vh;
+    position: relative;
+}
+
+/* Dot grid background */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: radial-gradient(
+        circle,
+        var(--dot-color) 1px,
+        transparent 1px
+    );
+    background-size: var(--grid-size) var(--grid-size);
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Canvas container */
+.canvas-container {
+    width: 100vw;
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
+}
+
+/* Home button */
+.home-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: 50px;
+    height: 50px;
+    background: var(--node-bg);
+    border: 3px solid var(--node-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.home-btn:hover {
+    background: var(--accent-orange);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.home-btn:active {
+    transform: scale(0.95);
+}
+
+.home-btn svg {
+    color: var(--text-color);
+}
+
+/* Help button */
+.help-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 12px 20px;
+    background: var(--node-bg);
+    border: 3px solid var(--node-border);
+    border-radius: 25px;
+    font-family: "Courier New", Courier, monospace;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.help-btn:hover {
+    background: var(--accent-orange);
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.help-btn:active {
+    transform: scale(0.95);
+}
+
+/* Rejection message */
+.rejection-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Courier New", Courier, monospace;
+    font-size: clamp(24px, 8vw, 72px);
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: #e74c3c;
+    text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 2000;
+    transition: opacity 0.3s ease;
+    white-space: nowrap;
+    max-width: 90vw;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
+.rejection-message.show {
+    opacity: 1;
+}
+
+.canvas-workspace {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-origin: 0 0;
+    transition: transform 0.05s linear;
+    z-index: 5;
+}
+
+/* SVG connections layer */
+.connections-svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1;
+    overflow: visible;
+}
+
+.connection {
+    stroke: var(--node-border);
+    stroke-width: 3;
+    fill: none;
+}
+
+/* Base node styles */
+.node {
+    background: var(--node-bg);
+    border: 3px solid var(--node-border);
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+    position: absolute;
+    cursor: grab;
+    transition: box-shadow 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+}
+
+.node:hover {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.node:active {
+    cursor: grabbing;
+}
+
+/* Connection ports */
+.connection-port {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background: var(--node-border);
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.connection-port.input {
+    top: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.connection-port.output {
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+/* Close button */
+.close-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    background: transparent;
+    border: none;
+    font-size: 28px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: var(--text-color);
+    transition: background 0.2s ease;
+    z-index: 20;
+}
+
+.close-btn:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+
+/* Node content */
+.node-content {
+    padding: 12px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Node grid (for Work/Info/Contact and categories) */
+.node-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    padding: 12px;
+}
+
+.node-item {
+    background: var(--node-bg);
+    border: 2px solid var(--node-border);
+    border-radius: 8px;
+    padding: 16px 12px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.node-item:hover {
+    background: var(--accent-orange);
+    transform: translateY(-2px);
+}
+
+/* Back button styling */
+.node-item-back {
+    background: var(--accent-orange) !important;
+    font-size: 20px;
+}
+
+.node-list-item-back {
+    background: var(--accent-orange);
+    font-weight: 700;
+    justify-content: center;
+    border-bottom: 2px solid var(--node-border) !important;
+}
+
+.node-list-item-back:hover {
+    background: #e08e0b;
+}
+
+/* Node list (scrollable items) */
+.node-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    padding: 0;
+    max-height: 400px;
+    overflow-y: auto;
+    width: 100%;
+}
+
+.node-list-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border-bottom: 1px solid rgba(26, 26, 26, 0.1);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    min-height: 44px;
+}
+
+.node-list-item:hover {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+.node-list-item.selected {
+    background: var(--accent-orange);
+}
+
+.item-thumbnail {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 3px;
+    border: 1px solid var(--node-border);
+}
+
+.item-title {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    flex: 1;
+}
+
+/* Tool node */
+.tool-label {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-align: center;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px;
+}
+
+/* Viewer node */
+.viewer-content {
+    width: 100%;
+    height: 450px;
+    background: #e8e6e3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border-radius: 12px 12px 0 0;
+}
+
+.viewer-empty {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--text-color);
+    opacity: 0.3;
+    padding: 40px;
+}
+
+.viewer-image {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+}
+
+.canvas-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.canvas-container canvas {
+    display: block !important;
+    max-width: 100%;
+    max-height: 100%;
+}
+
+/* Viewer bottom bar */
+.viewer-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 12px 20px;
+    background: var(--accent-orange);
+    border-top: 3px solid var(--node-border);
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    border-radius: 0 0 9px 9px;
+}
+
+.viewer-icon {
+    font-size: 20px;
+}
+
+/* Static pages */
+.static-page {
+    padding: 40px;
+    text-align: center;
+}
+
+.static-page h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    letter-spacing: 0.1em;
+}
+
+.static-page p {
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+/* Loading/empty states */
+.node-loading,
+.node-empty {
+    padding: 20px;
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.5;
+}
+
+/* Scrollbar styling */
+.node-list::-webkit-scrollbar {
+    width: 8px;
+}
+
+.node-list::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.05);
+    border-radius: 4px;
+}
+
+.node-list::-webkit-scrollbar-thumb {
+    background: var(--node-border);
+    border-radius: 4px;
+}
+
+.node-list::-webkit-scrollbar-thumb:hover {
+    background: var(--accent-orange);
+}
+
+/* Tool emblem (connection line button) */
+.tool-emblem {
+    position: fixed;
+    cursor: pointer;
+    z-index: 2;
+    pointer-events: auto;
+}
+
+.emblem-trigger {
+    width: 40px;
+    height: 40px;
+    background: var(--accent-orange);
+    border: 3px solid var(--node-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text-color);
+    transition: transform 0.2s ease;
+    pointer-events: auto;
+    cursor: pointer;
+}
+
+.emblem-trigger:hover {
+    transform: scale(1.1);
+}
+
+.emblem-menu {
+    position: absolute;
+    top: 45px;
+    left: 50%;
+    transform: translateX(-50%) scale(calc(1 / var(--emblem-scale, 1)));
+    transform-origin: top center;
+    background: var(--node-bg);
+    border: 3px solid var(--node-border);
+    border-radius: 8px;
+    padding: 8px;
+    opacity: 0;
+    visibility: hidden;
+    flex-direction: column;
+    gap: 5px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition:
+        opacity 0.2s ease,
+        visibility 0.2s ease;
+    pointer-events: auto;
+    min-width: 120px;
+}
+
+.tool-emblem:hover .emblem-menu {
+    opacity: 1;
+    visibility: visible;
+    display: flex;
+}
+
+.emblem-option {
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background 0.2s ease;
+    white-space: nowrap;
+}
+
+.emblem-option:hover {
+    background: var(--accent-orange);
+}
+
+.emblem-option.active {
+    background: var(--accent-orange);
+}
+
+/* Info overlay */
+.info-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.info-content {
+    background: var(--node-bg);
+    border: 3px solid var(--node-border);
+    border-radius: 12px;
+    padding: 30px;
+    max-width: 400px;
+}
+
+.info-content h3 {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.info-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 12px;
+    font-size: 12px;
+}
+
+.info-label {
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    min-width: 80px;
+}
+
+.info-value {
+    word-break: break-all;
+    opacity: 0.7;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    :root {
+        --grid-size: 15px;
+    }
+
+    .node {
+        min-width: 200px !important;
+    }
+
+    .node-grid {
+        grid-template-columns: 1fr;
+    }
+}
