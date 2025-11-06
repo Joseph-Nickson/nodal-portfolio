@@ -1,6 +1,13 @@
-// Base Tool class - All tools extend this
-export class Tool {
-  constructor() {
+import { EventEmitter } from "../utils/EventEmitter.js";
+
+/**
+ * Base Tool class - All tools extend this
+ * Extends EventEmitter so tools can emit their own events
+ */
+export class Tool extends EventEmitter {
+  constructor(type) {
+    super();
+    this.type = type; // Tool type identifier (e.g., 'info', 'smudge', 'slideshow')
     this.active = false;
   }
 
@@ -10,6 +17,7 @@ export class Tool {
    */
   activate(viewerNode) {
     this.active = true;
+    this.emit("activated", { viewerNode });
   }
 
   /**
@@ -19,6 +27,7 @@ export class Tool {
   deactivate(viewerNode) {
     this.active = false;
     this.cleanup();
+    this.emit("deactivated", { viewerNode });
   }
 
   /**

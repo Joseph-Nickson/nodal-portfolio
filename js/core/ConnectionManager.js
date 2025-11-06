@@ -1,6 +1,9 @@
-// ConnectionManager - Handles smooth curved SVG connections between nodes
 import { ToolRegistry } from "../config/ToolRegistry.js";
+import { CONNECTION } from "../config/constants.js";
 
+/**
+ * ConnectionManager - Handles smooth curved SVG connections between nodes
+ */
 export class ConnectionManager {
   constructor(svg, stateManager, canvas, onToolEmblemClick) {
     this.svg = svg;
@@ -9,6 +12,7 @@ export class ConnectionManager {
     this.onToolEmblemClick = onToolEmblemClick;
     this.paths = new Map(); // fromId -> path element
     this.emblems = new Map(); // fromId -> emblem element
+    this.emblemHandlers = new Map(); // fromId -> array of handler references
 
     // Listen for connection changes
     stateManager.on("connectionChanged", () => this.updateAll());
@@ -18,9 +22,12 @@ export class ConnectionManager {
   updateAll() {
     const connections = this.stateManager.getConnections();
 
+    // Use Set for O(1) lookup instead of O(n) find operations
+    const activeConnectionIds = new Set(connections.map(([fromId]) => fromId));
+
     // Remove old paths not in current connections
     this.paths.forEach((path, fromId) => {
-      if (!connections.find(([fid]) => fid === fromId)) {
+      if (!activeConnectionIds.has(fromId)) {
         path.remove();
         this.paths.delete(fromId);
       }
@@ -28,7 +35,7 @@ export class ConnectionManager {
 
     // Remove old emblems not in current connections
     this.emblems.forEach((emblem, fromId) => {
-      if (!connections.find(([fid]) => fid === fromId)) {
+      if (!activeConnectionIds.has(fromId)) {
         emblem.remove();
         this.emblems.delete(fromId);
       }
@@ -51,25 +58,47 @@ export class ConnectionManager {
 
     if (!fromPort || !toPort) return;
 
-    // Get port positions relative to the workspace (not screen)
-    // Since SVG is now inside workspace, use node positions directly
-    // Need to use actual DOM height, not node.height (which is just min-height)
-    const fromActualHeight = fromNode.element.offsetHeight;
-    const toActualHeight = toNode.element.offsetHeight;
+    // Check if nodes are currently transitioning (CSS animation in progress)
+    const fromTransitioning =
+      fromNode.element.classList.contains("mode-transitioning");
+    const toTransitioning =
+      toNode.element.classList.contains("mode-transitioning");
+    const isTransitioning = fromTransitioning || toTransitioning;
 
-    // Output port: 10px circle at bottom: -5px
-    // Center of port is at y + height (5px below bottom edge, 5px of radius above that = at the edge)
-    // Input port: 10px circle at top: -5px
-    // Center of port is at y (5px above top edge, 5px of radius below that = at the edge)
+    let x1, y1, x2, y2;
 
-    const x1 = fromNode.x + fromNode.width / 2;
-    const y1 = fromNode.y + fromActualHeight; // Connect to center of output port
-    const x2 = toNode.x + toNode.width / 2;
-    const y2 = toNode.y; // Connect to center of input port
+    if (isTransitioning) {
+      // During transition: read actual rendered position from DOM
+      // This syncs with CSS animations for smooth cable rendering
+      const workspace = fromNode.element.parentElement;
+      const workspaceRect = workspace.getBoundingClientRect();
+
+      const fromRect = fromNode.element.getBoundingClientRect();
+      const toRect = toNode.element.getBoundingClientRect();
+
+      // Convert screen coordinates to workspace coordinates
+      x1 = fromRect.left - workspaceRect.left + fromRect.width / 2;
+      y1 = fromRect.bottom - workspaceRect.top;
+      x2 = toRect.left - workspaceRect.left + toRect.width / 2;
+      y2 = toRect.top - workspaceRect.top;
+    } else {
+      // Normal mode: use stored positions for performance
+      const fromActualHeight = fromNode.element.offsetHeight;
+      const fromActualWidth = fromNode.element.offsetWidth;
+      const toActualWidth = toNode.element.offsetWidth;
+
+      x1 = fromNode.x + fromActualWidth / 2;
+      y1 = fromNode.y + fromActualHeight;
+      x2 = toNode.x + toActualWidth / 2;
+      y2 = toNode.y;
+    }
 
     // Create smooth curve
     const distance = Math.abs(y2 - y1);
-    const curve = Math.min(distance * 0.3, 50);
+    const curve = Math.min(
+      distance * CONNECTION.CURVE_FACTOR,
+      CONNECTION.MAX_CURVE,
+    );
 
     const path = `
       M ${x1} ${y1}
@@ -95,9 +124,8 @@ export class ConnectionManager {
     const midX = (x1 + x2) / 2;
     const midY = (y1 + y2) / 2;
 
-    // Calculate cable length
+    // Calculate cable length and only show emblem if cable is long enough
     const cableLength = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-    const minCableLengthForEmblem = 100; // Only show + if cable is at least 100px long
 
     // Get or create emblem element
     let emblem = this.emblems.get(fromId);
@@ -123,31 +151,35 @@ export class ConnectionManager {
       this.canvas.getWorkspace().appendChild(emblem);
       this.emblems.set(fromId, emblem);
 
-      // Add click handlers
+      // Store handlers for cleanup
+      const handlers = [];
+
+      // Add click handlers with stored references
       emblem.querySelectorAll(".emblem-option").forEach((option) => {
-        option.addEventListener("click", (e) => {
+        const handler = (e) => {
           e.stopPropagation();
           const tool = option.dataset.tool;
           if (this.onToolEmblemClick) {
             this.onToolEmblemClick(tool, fromId, toId);
           }
-        });
+        };
+        option.addEventListener("click", handler);
+        handlers.push({ element: option, handler });
       });
+
+      this.emblemHandlers.set(fromId, handlers);
     }
 
     // Position emblem at midpoint in workspace coordinates
     // No need to convert to screen coords since it's now inside workspace
     emblem.style.position = "absolute";
-    emblem.style.left = `${midX - 20}px`;
-    emblem.style.top = `${midY - 20}px`;
+    emblem.style.left = `${midX - CONNECTION.EMBLEM_OFFSET}px`;
+    emblem.style.top = `${midY - CONNECTION.EMBLEM_OFFSET}px`;
     emblem.style.zIndex = "100";
 
     // Hide emblem if cable is too short
-    if (cableLength < minCableLengthForEmblem) {
-      emblem.style.display = "none";
-    } else {
-      emblem.style.display = "block";
-    }
+    emblem.style.display =
+      cableLength < CONNECTION.MIN_LENGTH_FOR_EMBLEM ? "none" : "block";
   }
 
   removePath(fromId) {
@@ -155,6 +187,15 @@ export class ConnectionManager {
     if (path) {
       path.remove();
       this.paths.delete(fromId);
+    }
+
+    // Clean up emblem event listeners before removing
+    const handlers = this.emblemHandlers.get(fromId);
+    if (handlers) {
+      handlers.forEach(({ element, handler }) => {
+        element.removeEventListener("click", handler);
+      });
+      this.emblemHandlers.delete(fromId);
     }
 
     const emblem = this.emblems.get(fromId);

@@ -10,7 +10,7 @@ export class ToolRegistry {
     [
       "info",
       {
-        label: "INFO",
+        label: "SHOW DATA",
         class: InfoTool,
         description: "Display metadata information",
       },
@@ -18,7 +18,7 @@ export class ToolRegistry {
     [
       "ragdoll",
       {
-        label: "RAGDOLL",
+        label: "MEET THE ARTIST",
         class: RagdollTool,
         description: "Physics-based ragdoll character",
       },
@@ -60,7 +60,6 @@ export class ToolRegistry {
   static createTool(toolType) {
     const toolDef = this.tools.get(toolType);
     if (!toolDef) {
-      console.warn(`Unknown tool type: ${toolType}`);
       return null;
     }
     return new toolDef.class();

@@ -50,11 +50,44 @@ body::before {
     overflow: hidden;
 }
 
-/* Home button */
-.home-btn {
+/* View mode toggle button (left) */
+.view-mode-toggle {
     position: fixed;
     bottom: 20px;
     left: 20px;
+    width: 36px;
+    height: 36px;
+    background: var(--node-bg);
+    border: 3px solid var(--node-border);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 1000;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+.view-mode-toggle:hover {
+    background: var(--accent-orange);
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.view-mode-toggle:active {
+    transform: scale(0.95);
+}
+
+.view-mode-toggle svg {
+    color: var(--text-color);
+}
+
+/* Home button (right of chain button) */
+.home-btn {
+    position: fixed;
+    bottom: 20px;
+    left: 90px;
     width: 50px;
     height: 50px;
     background: var(--node-bg);
@@ -83,7 +116,6 @@ body::before {
     color: var(--text-color);
 }
 
-/* Help button */
 .help-btn {
     position: fixed;
     bottom: 20px;
@@ -212,13 +244,13 @@ body::before {
 /* Close button */
 .close-btn {
     position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 32px;
-    height: 32px;
+    top: 4px;
+    right: 4px;
+    width: 24px;
+    height: 24px;
     background: transparent;
     border: none;
-    font-size: 28px;
+    font-size: 20px;
     font-weight: 700;
     cursor: pointer;
     display: flex;
@@ -285,7 +317,6 @@ body::before {
 /* Back button styling */
 .node-item-back {
     background: var(--accent-orange) !important;
-    font-size: 20px;
 }
 
 .node-list-item-back {
@@ -313,6 +344,13 @@ body::before {
 
 .back-arrow:hover {
     transform: scale(1.2);
+}
+
+/* Node list container - wrapper for back button + scrollable list */
+.node-list-container {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
 }
 
 /* Node list (scrollable items) */
@@ -372,27 +410,153 @@ body::before {
     align-items: center;
     justify-content: center;
     padding: 12px;
+    padding-right: 32px; /* Account for close button to keep text centered */
 }
 
 /* Viewer node */
+.viewer-node {
+    width: auto !important;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+/* Lock width during drag to prevent scaling */
+.viewer-node.dragging {
+    width: var(--drag-width) !important;
+}
+
+/* Viewer content fills available space */
+.viewer-node .viewer-content {
+    flex: 1;
+    min-height: 0;
+}
+
+/* Resize handle */
+.resize-handle {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 30px;
+    height: 30px;
+    cursor: nwse-resize;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--node-border);
+    opacity: 0.4;
+    transition: opacity 0.2s ease;
+    z-index: 100;
+    user-select: none;
+    pointer-events: auto;
+}
+
+.resize-handle:hover {
+    opacity: 1;
+}
+
+/* Hide resize handle in simplified mode */
+.view-mode-simplified .resize-handle {
+    display: none;
+}
+
+/* Simplified view mode */
+.view-mode-simplified {
+    overflow-y: scroll !important;
+    overflow-x: hidden !important;
+    height: 100vh !important;
+    position: relative !important;
+}
+
+.view-mode-simplified .canvas-workspace {
+    position: relative !important;
+    transform: none !important;
+    width: 100% !important;
+    height: auto !important;
+    min-height: 100vh !important;
+    padding: 20px 0 40px 0; /* Top 20px, bottom 40px, sides 0 (nodes handle their own) */
+}
+
+.view-mode-simplified .node {
+    cursor: default !important;
+    pointer-events: none !important;
+    position: absolute !important;
+}
+
+.view-mode-simplified .viewer-node {
+    margin-bottom: 40px; /* Add visible spacing below viewer */
+}
+
+/* Smooth transitions only during mode switch */
+.node.mode-transitioning {
+    transition:
+        left 0.5s ease-in-out,
+        top 0.5s ease-in-out,
+        width 0.5s ease-in-out,
+        margin 0.5s ease-in-out !important;
+}
+
+.view-mode-simplified .node * {
+    pointer-events: auto;
+}
+
+.view-mode-simplified .connection-port {
+    display: none;
+}
+
+.view-mode-simplified .tool-emblem {
+    display: none !important;
+}
+
+.view-mode-simplified .connections-svg {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none !important;
+}
+
 .viewer-content {
     width: 100%;
-    height: 450px;
     background: #e8e6e3;
     display: flex;
     align-items: center;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    border-radius: 12px 12px 0 0;
+    border-radius: 9px 9px 0 0;
+}
+
+.view-mode-simplified .viewer-content {
+    min-height: 300px;
+    /* No max-height - let images display at full size */
+    overflow: hidden; /* Never show scrollbars, content scales to fit */
+}
+
+.view-mode-full .viewer-content {
+    min-height: 450px;
+    overflow: hidden; /* Never show scrollbars, content scales to fit */
 }
 
 .viewer-image {
     max-width: 100%;
-    max-height: 100%;
-    width: auto;
-    height: auto;
+    width: 100%; /* Fill width in simplified mode */
+    height: auto; /* Maintain aspect ratio */
     object-fit: contain;
+}
+
+.view-mode-full .viewer-image {
+    width: auto; /* In full mode, don't force width */
+    max-height: 100%;
+}
+
+.viewer-video {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    max-width: 1920px;
+    max-height: 1080px;
 }
 
 .canvas-container {
@@ -439,6 +603,12 @@ body::before {
 .canvas-container canvas {
     display: block !important;
     max-width: 100%;
+    width: 100%; /* Fill width in simplified mode */
+    height: auto; /* Maintain aspect ratio */
+}
+
+.view-mode-full .canvas-container canvas {
+    width: auto; /* In full mode, don't force width */
     max-height: 100%;
 }
 
@@ -583,6 +753,52 @@ body::before {
     background: var(--accent-orange);
 }
 
+/* Carousel navigation */
+.carousel-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 48px;
+    height: 48px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 3px solid var(--node-border);
+    border-radius: 50%;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-color);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 15;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.carousel-nav:hover:not(:disabled) {
+    background: var(--accent-orange);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-nav:active:not(:disabled) {
+    transform: translateY(-50%) scale(0.95);
+}
+
+.carousel-nav:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    background: rgba(200, 200, 200, 0.5);
+}
+
+.carousel-prev {
+    left: 16px;
+}
+
+.carousel-next {
+    right: 16px;
+}
+
 /* Info overlay */
 .info-overlay {
     position: absolute;
@@ -635,10 +851,6 @@ body::before {
 @media (max-width: 768px) {
     :root {
         --grid-size: 15px;
-    }
-
-    .node {
-        min-width: 200px !important;
     }
 
     .node-grid {

@@ -1,4 +1,8 @@
-// Base Node class - All nodes inherit from this
+import { DragHandler } from "../utils/DragHandler.js";
+
+/**
+ * Base Node class - All nodes inherit from this
+ */
 export class Node {
   constructor(id, stateManager, options = {}) {
     this.id = id;
@@ -64,92 +68,69 @@ export class Node {
   }
 
   attachDragListeners() {
-    let startX, startY;
+    // Check if target element allows dragging
+    const canDrag = (target) => {
+      // If dragHandle is specified, only allow drag from that element
+      if (this.dragHandle && !target.closest(this.dragHandle)) {
+        return false;
+      }
 
-    const startDrag = (clientX, clientY, target) => {
-      // Don't drag if clicking on interactive elements
+      // Don't drag if clicking on interactive elements (buttons, but allow back-arrow)
       if (
         target.classList.contains("close-btn") ||
         target.closest("button") ||
-        target.closest(".node-item") ||
-        target.closest(".node-list-item")
+        (target.closest(".node-item") && !target.closest(this.dragHandle)) ||
+        (target.closest(".node-list-item") && !target.closest(this.dragHandle))
       ) {
         return false;
       }
 
-      // If dragHandle is specified, only allow drag from that element
-      if (this.dragHandle) {
-        if (!target.closest(this.dragHandle)) {
-          return false;
-        }
-      }
-
-      this.isDragging = true;
-      startX = clientX - this.x;
-      startY = clientY - this.y;
-      this.element.style.cursor = "grabbing";
       return true;
     };
 
-    const doDrag = (clientX, clientY) => {
-      if (!this.isDragging) return;
+    // Create drag handler with throttled updates - store reference for cleanup
+    this.dragHandler = new DragHandler(this.element, {
+      canDrag,
+      throttle: 16, // Max 60fps updates
+      onStart: () => {
+        this.isDragging = true;
+        this.element.style.cursor = "grabbing";
 
-      this.x = clientX - startX;
-      this.y = clientY - startY;
-      this.element.style.left = `${this.x}px`;
-      this.element.style.top = `${this.y}px`;
-
-      // Update connections
-      this.stateManager.emit("connectionChanged");
-    };
-
-    const endDrag = () => {
-      if (this.isDragging) {
+        // Lock width during drag for viewer nodes (prevents scaling)
+        if (this.element.classList.contains("viewer-node")) {
+          const currentWidth = this.element.offsetWidth;
+          this.element.style.setProperty("--drag-width", `${currentWidth}px`);
+          this.element.classList.add("dragging");
+        }
+      },
+      onMove: (dx, dy) => {
+        this.x += dx;
+        this.y += dy;
+        this.element.style.left = `${this.x}px`;
+        this.element.style.top = `${this.y}px`;
+        this.stateManager.emit("connectionChanged");
+      },
+      onEnd: () => {
         this.isDragging = false;
         this.element.style.cursor = "grab";
-      }
-    };
 
-    // Mouse events
-    this.element.addEventListener("mousedown", (e) => {
-      if (startDrag(e.clientX, e.clientY, e.target)) {
-        e.preventDefault();
-      }
-    });
-
-    document.addEventListener("mousemove", (e) => {
-      doDrag(e.clientX, e.clientY);
-    });
-
-    document.addEventListener("mouseup", endDrag);
-
-    // Touch events
-    this.element.addEventListener(
-      "touchstart",
-      (e) => {
-        if (e.touches.length === 1) {
-          const touch = e.touches[0];
-          if (startDrag(touch.clientX, touch.clientY, e.target)) {
-            e.preventDefault();
-          }
+        // For viewer nodes, keep the width locked after drag to prevent auto-sizing
+        if (this.element.classList.contains("viewer-node")) {
+          const finalWidth = this.element.offsetWidth;
+          this.element.classList.remove("dragging");
+          this.element.style.removeProperty("--drag-width");
+          // Set explicit width with !important to override CSS
+          this.element.style.setProperty(
+            "width",
+            `${finalWidth}px`,
+            "important",
+          );
         }
-      },
-      { passive: false },
-    );
 
-    document.addEventListener(
-      "touchmove",
-      (e) => {
-        if (this.isDragging && e.touches.length === 1) {
-          const touch = e.touches[0];
-          doDrag(touch.clientX, touch.clientY);
-          e.preventDefault();
-        }
+        // Final update to ensure accurate position
+        this.stateManager.emit("connectionChanged");
       },
-      { passive: false },
-    );
-
-    document.addEventListener("touchend", endDrag);
+    });
   }
 
   getConnectionPort(type) {
@@ -168,6 +149,12 @@ export class Node {
   }
 
   remove() {
+    // Clean up drag handler
+    if (this.dragHandler) {
+      this.dragHandler.destroy();
+      this.dragHandler = null;
+    }
+
     this.element.remove();
     this.stateManager.removeNode(this.id);
   }

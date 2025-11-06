@@ -3,7 +3,7 @@ import { Tool } from "./Tool.js";
 
 export class InvertTool extends Tool {
   constructor() {
-    super();
+    super("invert");
   }
 
   /**

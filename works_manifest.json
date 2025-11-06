@@ -1,68 +1,196 @@
 {
-  "painting": [
+  "client": [
     {
-      "filename": "F-aFtHJawAAlxP8 copy 2.jpeg",
-      "path": "works/painting/F-aFtHJawAAlxP8 copy 2.jpeg",
-      "title": "F aFtHJawAAlxP8 copy 2"
+      "type": "folder",
+      "foldername": "2020 - Axis Studios - Love Death & Robots",
+      "title": "2020   Axis Studios   Love Death & Robots",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "22w7z_lT6YM",
+          "url": "https://www.youtube.com/watch?v=22w7z_lT6YM",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/mqdefault.jpg"
     },
     {
-      "filename": "F-aFtHJawAAlxP8 copy.jpeg",
-      "path": "works/painting/F-aFtHJawAAlxP8 copy.jpeg",
-      "title": "F aFtHJawAAlxP8 copy"
+      "type": "folder",
+      "foldername": "2022 - Axis Studios - Love Death & Robots",
+      "title": "2022   Axis Studios   Love Death & Robots",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "22w7z_lT6YM",
+          "url": "https://www.youtube.com/watch?v=22w7z_lT6YM",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/mqdefault.jpg"
     },
     {
-      "filename": "F-aFtHJawAAlxP8.jpeg",
-      "path": "works/painting/F-aFtHJawAAlxP8.jpeg",
-      "title": "F aFtHJawAAlxP8"
+      "type": "folder",
+      "foldername": "2022 - Axis Studios - Riot Games",
+      "title": "2022   Axis Studios   Riot Games",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "22w7z_lT6YM",
+          "url": "https://www.youtube.com/watch?v=22w7z_lT6YM",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/mqdefault.jpg"
     },
     {
-      "filename": "FQNoRGNWUAIfjIp copy 2.jpeg",
-      "path": "works/painting/FQNoRGNWUAIfjIp copy 2.jpeg",
-      "title": "FQNoRGNWUAIfjIp copy 2"
+      "type": "folder",
+      "foldername": "2024 - Danny Daze - BLUE",
+      "title": "2024   Danny Daze   BLUE",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "22w7z_lT6YM",
+          "url": "https://www.youtube.com/watch?v=22w7z_lT6YM",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/mqdefault.jpg"
     },
     {
-      "filename": "FQNoRGNWUAIfjIp copy.jpeg",
-      "path": "works/painting/FQNoRGNWUAIfjIp copy.jpeg",
-      "title": "FQNoRGNWUAIfjIp copy"
+      "type": "folder",
+      "foldername": "2024 - Framestore - How to Train your Dragon",
+      "title": "2024   Framestore   How to Train your Dragon",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "22w7z_lT6YM",
+          "url": "https://www.youtube.com/watch?v=22w7z_lT6YM",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/mqdefault.jpg"
     },
     {
-      "filename": "FQNoRGNWUAIfjIp.jpeg",
-      "path": "works/painting/FQNoRGNWUAIfjIp.jpeg",
-      "title": "FQNoRGNWUAIfjIp"
+      "type": "folder",
+      "foldername": "2024 - Transgressive - SOPHIE Album",
+      "title": "2024   Transgressive   SOPHIE Album",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "22w7z_lT6YM",
+          "url": "https://www.youtube.com/watch?v=22w7z_lT6YM",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/mqdefault.jpg"
     },
     {
-      "filename": "FQjQSpjXoAMvfG5 copy 2.jpeg",
-      "path": "works/painting/FQjQSpjXoAMvfG5 copy 2.jpeg",
-      "title": "FQjQSpjXoAMvfG5 copy 2"
+      "type": "folder",
+      "foldername": "2025 - Framestore - Wicked 2",
+      "title": "2025   Framestore   Wicked 2",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "R2Xubj7lazE",
+          "url": "https://www.youtube.com/watch?v=R2Xubj7lazE",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/R2Xubj7lazE/mqdefault.jpg"
     },
     {
-      "filename": "FQjQSpjXoAMvfG5 copy.jpeg",
-      "path": "works/painting/FQjQSpjXoAMvfG5 copy.jpeg",
-      "title": "FQjQSpjXoAMvfG5 copy"
-    },
-    {
-      "filename": "FQjQSpjXoAMvfG5.jpeg",
-      "path": "works/painting/FQjQSpjXoAMvfG5.jpeg",
-      "title": "FQjQSpjXoAMvfG5"
+      "type": "folder",
+      "foldername": "2025 - Numbers - SOPHIE",
+      "title": "2025   Numbers   SOPHIE",
+      "infoPath": null,
+      "images": [
+        {
+          "type": "youtube",
+          "filename": "video1.txt",
+          "videoId": "22w7z_lT6YM",
+          "url": "https://www.youtube.com/watch?v=22w7z_lT6YM",
+          "infoPath": null
+        }
+      ],
+      "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/mqdefault.jpg"
     }
   ],
-  "film": [
+  "personal": [
     {
-      "filename": "FPLmsyPWYAsnoiE.jpeg",
-      "path": "works/film/FPLmsyPWYAsnoiE.jpeg",
-      "title": "FPLmsyPWYAsnoiE"
+      "type": "image",
+      "filename": "2023 - Experiment A.jpeg",
+      "path": "works/personal/2023 - Experiment A.jpeg",
+      "title": "2023   Experiment A",
+      "infoPath": null,
+      "thumbnail": "works/personal/2023 - Experiment A.jpeg"
     },
     {
-      "filename": "FQdiDdRWUAYSfwe.jpeg",
-      "path": "works/film/FQdiDdRWUAYSfwe.jpeg",
-      "title": "FQdiDdRWUAYSfwe"
+      "type": "image",
+      "filename": "2023 - Foliage.jpeg",
+      "path": "works/personal/2023 - Foliage.jpeg",
+      "title": "2023   Foliage",
+      "infoPath": null,
+      "thumbnail": "works/personal/2023 - Foliage.jpeg"
+    },
+    {
+      "type": "image",
+      "filename": "2023 - Lava.jpeg",
+      "path": "works/personal/2023 - Lava.jpeg",
+      "title": "2023   Lava",
+      "infoPath": null,
+      "thumbnail": "works/personal/2023 - Lava.jpeg"
+    },
+    {
+      "type": "folder",
+      "foldername": "test-project",
+      "title": "test project",
+      "infoPath": "works/personal/test-project.txt",
+      "images": [
+        {
+          "type": "image",
+          "filename": "image1.jpeg",
+          "path": "works/personal/test-project/image1.jpeg",
+          "infoPath": "works/personal/test-project/image1.txt"
+        },
+        {
+          "type": "image",
+          "filename": "image2.jpeg",
+          "path": "works/personal/test-project/image2.jpeg",
+          "infoPath": "works/personal/test-project/image2.txt"
+        },
+        {
+          "type": "image",
+          "filename": "image3.jpeg",
+          "path": "works/personal/test-project/image3.jpeg",
+          "infoPath": "works/personal/test-project/image3.txt"
+        }
+      ],
+      "thumbnail": "works/personal/test-project/image1.jpeg"
     }
   ],
-  "music": [
+  "tools": [
     {
+      "type": "image",
       "filename": "painting_1.jpeg",
-      "path": "works/music/painting_1.jpeg",
-      "title": "painting 1"
+      "path": "works/tools/painting_1.jpeg",
+      "title": "painting 1",
+      "infoPath": null,
+      "thumbnail": "works/tools/painting_1.jpeg"
     }
-  ]
+  ],
+  "info": []
 }

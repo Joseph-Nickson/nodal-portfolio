@@ -1,13 +1,41 @@
-// SmudgeTool - Smudge painting effect using p5.js
 import { Tool } from "./Tool.js";
-import { BRUSH } from "../config/constants.js";
+import { VIEWER } from "../config/constants.js";
 
+/**
+ * SmudgeTool - Mixer brush that picks up and blends pixels like Photoshop
+ * Uses Canvas 2D API for GPU-accelerated painting
+ */
 export class SmudgeTool extends Tool {
   constructor() {
-    super();
-    this.sketch = null;
+    super("smudge");
+    this.canvas = null;
+    this.ctx = null;
     this.viewerNode = null;
-    this.currentImageData = null;
+    this.originalImage = null;
+
+    // Brush state
+    this.isSmudging = false;
+    this.lastX = 0;
+    this.lastY = 0;
+    this.brushSize = 50;
+    this.wetness = 0.5; // How much to pick up new paint vs keep old
+    this.flow = 0.5; // How much to apply
+    this.brushPaint = null; // The paint on the brush tip
+
+    // Track the last imageData hash to detect when source changes
+    this.lastImageDataHash = null;
+    this.canvasNeedsRefresh = true;
+
+    // Store event handler references for cleanup
+    this.handlers = {
+      mousedown: null,
+      mousemove: null,
+      mouseup: null,
+      mouseleave: null,
+      touchstart: null,
+      touchmove: null,
+      touchend: null,
+    };
   }
 
   activate(viewerNode) {
@@ -15,297 +43,344 @@ export class SmudgeTool extends Tool {
     this.viewerNode = viewerNode;
     // Restrict dragging to only the viewer-bar for interactive canvas
     viewerNode.setDragHandle(".viewer-bar");
+    // Hide the static image, show the canvas container
+    viewerNode.showCanvas();
   }
 
   /**
-   * SmudgeTool is interactive and uses p5.js, so it takes over the canvas
-   * It processes the input imageData by displaying it in an interactive p5 canvas
+   * SmudgeTool needs to work differently from other tools:
+   * 1. Only refresh canvas when input imageData actually changes
+   * 2. Preserve user's painting across renders
+   * 3. Return null to prevent pipeline from overwriting canvas
    */
   async process(imageData, ctx, canvas) {
-    // Store the current image data to initialize the sketch with
-    this.currentImageData = imageData;
-
     if (!this.viewerNode.currentItem) {
       return imageData;
     }
 
-    // If sketch doesn't exist, create it
-    if (!this.sketch) {
-      this.initSketch(
-        this.viewerNode.currentItem.path,
-        this.viewerNode.getCanvasContainer(),
-      );
-    }
+    // Calculate simple hash of imageData to detect changes
+    const newHash = this.hashImageData(imageData);
+    const imageDataChanged = newHash !== this.lastImageDataHash;
 
-    // Return the imageData (smudge tool is interactive and doesn't pass through)
-    return imageData;
+    // Use the existing pipeline canvas instead of creating a new one
+    if (!this.canvas) {
+      this.canvas = canvas;
+      this.ctx = ctx;
+
+      // Set cursor for smudge tool
+      this.canvas.style.cursor = "crosshair";
+
+      // Put the incoming imageData onto canvas (first time)
+      ctx.putImageData(imageData, 0, 0);
+
+      // Attach event listeners to the existing canvas
+      this.attachEventListeners();
+
+      // Store hash
+      this.lastImageDataHash = newHash;
+    } else if (imageDataChanged) {
+      // Source image changed (new item loaded or tools changed upstream)
+      // Refresh the canvas with new base image
+      ctx.putImageData(imageData, 0, 0);
+
+      // Clear brush and reset for new image
+      this.brushPaint = null;
+      this.lastImageDataHash = newHash;
+    }
+    // else: imageData hasn't changed, preserve user's painting on canvas
+
+    // IMPORTANT: Return null to signal "don't putImageData after this"
+    // The canvas already has the correct state (input + user painting)
+    return null;
+  }
+
+  /**
+   * Simple hash of imageData to detect changes
+   * Samples pixels across the image for performance
+   */
+  hashImageData(imageData) {
+    let hash = 0;
+    const step = Math.floor(imageData.data.length / 100); // Sample 100 points
+    for (let i = 0; i < imageData.data.length; i += step) {
+      hash = (hash << 5) - hash + imageData.data[i];
+      hash = hash & hash; // Convert to 32bit integer
+    }
+    return hash;
   }
 
   deactivate(viewerNode) {
     super.deactivate(viewerNode);
     this.cleanup();
+    // Restore static image display when tool is removed
+    viewerNode.showImage();
   }
 
   cleanup() {
-    if (this.sketch) {
-      this.sketch.remove();
-      this.sketch = null;
+    // Remove event listeners properly
+    if (this.canvas) {
+      Object.entries(this.handlers).forEach(([event, handler]) => {
+        if (handler) {
+          this.canvas.removeEventListener(event, handler);
+        }
+      });
+
+      this.canvas = null;
+      this.ctx = null;
     }
+
+    // Clear all handler references
+    Object.keys(this.handlers).forEach((key) => {
+      this.handlers[key] = null;
+    });
+
     // Re-enable full node dragging when smudge is removed
     if (this.viewerNode) {
       this.viewerNode.setDragHandle(null);
       this.viewerNode = null;
     }
-    this.currentImageData = null;
+
+    // Reset state
+    this.brushPaint = null;
+    this.isSmudging = false;
+    this.lastImageDataHash = null;
+    this.canvasNeedsRefresh = true;
   }
 
-  loadNewImage(imagePath) {
-    if (this.sketch && this.sketch.loadNewImage) {
-      this.sketch.loadNewImage(imagePath);
+  attachEventListeners() {
+    // Mouse down
+    this.handlers.mousedown = (e) => {
+      const rect = this.canvas.getBoundingClientRect();
+      // Convert screen coordinates to canvas pixel coordinates
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      this.isSmudging = true;
+      this.lastX = x;
+      this.lastY = y;
+
+      // Pick up paint from canvas
+      this.pickupPaint(x, y, this.brushSize);
+
+      // Apply paint at starting position
+      this.applyPaint(x, y, this.brushSize);
+    };
+    this.canvas.addEventListener("mousedown", this.handlers.mousedown);
+
+    // Mouse move
+    this.handlers.mousemove = (e) => {
+      if (!this.isSmudging) return;
+
+      const rect = this.canvas.getBoundingClientRect();
+      // Convert screen coordinates to canvas pixel coordinates
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      const x = (e.clientX - rect.left) * scaleX;
+      const y = (e.clientY - rect.top) * scaleY;
+
+      // Interpolate for smooth painting
+      const dist = Math.sqrt((x - this.lastX) ** 2 + (y - this.lastY) ** 2);
+      const steps = Math.max(1, Math.ceil(dist / 2));
+
+      for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        const ix = this.lastX + (x - this.lastX) * t;
+        const iy = this.lastY + (y - this.lastY) * t;
+
+        // Mix: pick up new paint + keep old paint
+        this.mixPaint(ix, iy, this.brushSize, this.wetness);
+
+        // Apply the mixed paint
+        this.applyPaint(ix, iy, this.brushSize);
+      }
+
+      this.lastX = x;
+      this.lastY = y;
+    };
+    this.canvas.addEventListener("mousemove", this.handlers.mousemove);
+
+    // Mouse up
+    this.handlers.mouseup = () => {
+      this.isSmudging = false;
+    };
+    this.canvas.addEventListener("mouseup", this.handlers.mouseup);
+
+    // Mouse leave
+    this.handlers.mouseleave = () => {
+      this.isSmudging = false;
+    };
+    this.canvas.addEventListener("mouseleave", this.handlers.mouseleave);
+
+    // Touch support
+    this.handlers.touchstart = (e) => {
+      e.preventDefault();
+      const rect = this.canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      // Convert screen coordinates to canvas pixel coordinates
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      const x = (touch.clientX - rect.left) * scaleX;
+      const y = (touch.clientY - rect.top) * scaleY;
+
+      this.isSmudging = true;
+      this.lastX = x;
+      this.lastY = y;
+
+      this.pickupPaint(x, y, this.brushSize);
+      this.applyPaint(x, y, this.brushSize);
+    };
+    this.canvas.addEventListener("touchstart", this.handlers.touchstart);
+
+    this.handlers.touchmove = (e) => {
+      e.preventDefault();
+      if (!this.isSmudging) return;
+
+      const rect = this.canvas.getBoundingClientRect();
+      const touch = e.touches[0];
+      // Convert screen coordinates to canvas pixel coordinates
+      const scaleX = this.canvas.width / rect.width;
+      const scaleY = this.canvas.height / rect.height;
+      const x = (touch.clientX - rect.left) * scaleX;
+      const y = (touch.clientY - rect.top) * scaleY;
+
+      const dist = Math.sqrt((x - this.lastX) ** 2 + (y - this.lastY) ** 2);
+      const steps = Math.max(1, Math.ceil(dist / 2));
+
+      for (let i = 1; i <= steps; i++) {
+        const t = i / steps;
+        const ix = this.lastX + (x - this.lastX) * t;
+        const iy = this.lastY + (y - this.lastY) * t;
+
+        this.mixPaint(ix, iy, this.brushSize, this.wetness);
+        this.applyPaint(ix, iy, this.brushSize);
+      }
+
+      this.lastX = x;
+      this.lastY = y;
+    };
+    this.canvas.addEventListener("touchmove", this.handlers.touchmove);
+
+    this.handlers.touchend = () => {
+      this.isSmudging = false;
+    };
+    this.canvas.addEventListener("touchend", this.handlers.touchend);
+  }
+
+  /**
+   * Pick up paint from the canvas into the brush
+   */
+  pickupPaint(x, y, size) {
+    const radius = size / 2;
+    const diameter = Math.ceil(size);
+
+    // Get circular region of pixels
+    const imageData = this.ctx.getImageData(
+      Math.max(0, Math.floor(x - radius)),
+      Math.max(0, Math.floor(y - radius)),
+      Math.min(this.canvas.width, diameter),
+      Math.min(this.canvas.height, diameter),
+    );
+
+    // Store as our brush paint
+    this.brushPaint = {
+      data: new Uint8ClampedArray(imageData.data),
+      width: imageData.width,
+      height: imageData.height,
+      centerX: radius,
+      centerY: radius,
+    };
+  }
+
+  /**
+   * Mix new paint from canvas with existing brush paint
+   */
+  mixPaint(x, y, size, mixAmount) {
+    if (!this.brushPaint) {
+      this.pickupPaint(x, y, size);
+      return;
+    }
+
+    const radius = size / 2;
+    const diameter = Math.ceil(size);
+
+    // Get new paint from canvas
+    const newPaint = this.ctx.getImageData(
+      Math.max(0, Math.floor(x - radius)),
+      Math.max(0, Math.floor(y - radius)),
+      Math.min(this.canvas.width, diameter),
+      Math.min(this.canvas.height, diameter),
+    );
+
+    // Mix with existing brush paint
+    // mixAmount = 0: keep 100% old paint (dry brush)
+    // mixAmount = 1: pick up 100% new paint (wet brush)
+    for (let i = 0; i < this.brushPaint.data.length; i += 4) {
+      if (i < newPaint.data.length) {
+        this.brushPaint.data[i] =
+          this.brushPaint.data[i] * (1 - mixAmount) +
+          newPaint.data[i] * mixAmount; // R
+        this.brushPaint.data[i + 1] =
+          this.brushPaint.data[i + 1] * (1 - mixAmount) +
+          newPaint.data[i + 1] * mixAmount; // G
+        this.brushPaint.data[i + 2] =
+          this.brushPaint.data[i + 2] * (1 - mixAmount) +
+          newPaint.data[i + 2] * mixAmount; // B
+        // Keep alpha at 255
+      }
     }
   }
 
-  initSketch(imagePath, container) {
-    const sketch = (p) => {
-      let img, brushAlpha, paintingBuffer;
-      let brushSize = 60;
-      let isSmudging = false;
-      let prevMouseX, prevMouseY;
-      let sampleColors = [];
-      const maxSamples = 20;
-      let scaleFactor = 1;
-      let displayWidth, displayHeight;
+  /**
+   * Apply brush paint to canvas with soft circular falloff
+   */
+  applyPaint(x, y, size) {
+    if (!this.brushPaint) return;
 
-      p.preload = function () {
-        img = p.loadImage(imagePath);
-        brushAlpha = p.loadImage("brush_alpha_1.png");
-      };
+    const radius = size / 2;
+    const tempCanvas = document.createElement("canvas");
+    const tempCtx = tempCanvas.getContext("2d");
+    tempCanvas.width = this.brushPaint.width;
+    tempCanvas.height = this.brushPaint.height;
 
-      p.setup = function () {
-        if (!img || img.width === 0) {
-          console.error("Image failed to load");
-          return;
-        }
+    // Put our brush paint data onto temp canvas
+    const imageData = tempCtx.createImageData(
+      this.brushPaint.width,
+      this.brushPaint.height,
+    );
+    imageData.data.set(this.brushPaint.data);
+    tempCtx.putImageData(imageData, 0, 0);
 
-        const maxWidth = 600;
-        const maxHeight = 400;
-        scaleFactor = Math.min(maxWidth / img.width, maxHeight / img.height, 1);
-        displayWidth = img.width * scaleFactor;
-        displayHeight = img.height * scaleFactor;
+    // Create circular mask with soft edges
+    const maskCanvas = document.createElement("canvas");
+    const maskCtx = maskCanvas.getContext("2d");
+    maskCanvas.width = this.brushPaint.width;
+    maskCanvas.height = this.brushPaint.height;
 
-        let canvas = p.createCanvas(displayWidth, displayHeight);
-        canvas.parent(container);
+    // Create radial gradient for soft circular brush
+    const gradient = maskCtx.createRadialGradient(
+      this.brushPaint.centerX,
+      this.brushPaint.centerY,
+      0,
+      this.brushPaint.centerX,
+      this.brushPaint.centerY,
+      radius,
+    );
+    gradient.addColorStop(0, `rgba(255, 255, 255, ${this.flow})`);
+    gradient.addColorStop(0.7, `rgba(255, 255, 255, ${this.flow * 0.5})`);
+    gradient.addColorStop(1, "rgba(255, 255, 255, 0)");
 
-        // Critical: Set position to relative so p5 mouseX/mouseY work correctly
-        canvas.elt.style.position = "relative";
-        canvas.elt.style.display = "block";
+    maskCtx.fillStyle = gradient;
+    maskCtx.fillRect(0, 0, maskCanvas.width, maskCanvas.height);
 
-        // Create graphics buffer
-        paintingBuffer = p.createGraphics(img.width, img.height);
-        // Set willReadFrequently flag for better pixel manipulation performance
-        paintingBuffer.drawingContext.getContextAttributes = () => ({
-          willReadFrequently: true,
-        });
-        paintingBuffer.image(img, 0, 0);
+    // Apply mask to paint using composite operation
+    tempCtx.globalCompositeOperation = "destination-in";
+    tempCtx.drawImage(maskCanvas, 0, 0);
 
-        if (brushAlpha && brushAlpha.width > 0) {
-          brushAlpha.loadPixels();
-        }
-
-        p.pixelDensity(1);
-      };
-
-      p.draw = function () {
-        if (!paintingBuffer) return;
-        p.image(paintingBuffer, 0, 0, displayWidth, displayHeight);
-        p.cursor(p.CROSS);
-      };
-
-      p.mousePressed = function () {
-        if (
-          p.mouseX > 0 &&
-          p.mouseX < p.width &&
-          p.mouseY > 0 &&
-          p.mouseY < p.height
-        ) {
-          isSmudging = true;
-          prevMouseX = p.mouseX;
-          prevMouseY = p.mouseY;
-
-          paintingBuffer.loadPixels();
-          let imgX = p.mouseX / scaleFactor;
-          let imgY = p.mouseY / scaleFactor;
-          let imgBrushSize = brushSize / scaleFactor;
-
-          sampleColors = sampleRegion(imgX, imgY, imgBrushSize);
-        }
-      };
-
-      p.mouseDragged = function () {
-        if (
-          isSmudging &&
-          p.mouseX > 0 &&
-          p.mouseX < p.width &&
-          p.mouseY > 0 &&
-          p.mouseY < p.height
-        ) {
-          let imgX = p.mouseX / scaleFactor;
-          let imgY = p.mouseY / scaleFactor;
-          let imgPrevX = prevMouseX / scaleFactor;
-          let imgPrevY = prevMouseY / scaleFactor;
-          let imgBrushSize = brushSize / scaleFactor;
-
-          smudgePaint(imgX, imgY, imgPrevX, imgPrevY, imgBrushSize);
-
-          prevMouseX = p.mouseX;
-          prevMouseY = p.mouseY;
-        }
-      };
-
-      p.mouseReleased = function () {
-        isSmudging = false;
-        sampleColors = [];
-      };
-
-      function sampleRegion(x, y, radius) {
-        let samples = [];
-        const sampleCount = 12;
-
-        for (let i = 0; i < sampleCount; i++) {
-          let angle = (p.TWO_PI / sampleCount) * i;
-          let r = p.random(radius * 0.3, radius * 0.7);
-          let sx = Math.floor(x + p.cos(angle) * r);
-          let sy = Math.floor(y + p.sin(angle) * r);
-
-          if (sx >= 0 && sx < img.width && sy >= 0 && sy < img.height) {
-            let index = (sy * img.width + sx) * 4;
-            samples.push({
-              r: paintingBuffer.pixels[index],
-              g: paintingBuffer.pixels[index + 1],
-              b: paintingBuffer.pixels[index + 2],
-              a: paintingBuffer.pixels[index + 3],
-            });
-          }
-        }
-        return samples;
-      }
-
-      function averageColors(colorArray) {
-        if (colorArray.length === 0) return { r: 0, g: 0, b: 0, a: 255 };
-
-        let totalR = 0,
-          totalG = 0,
-          totalB = 0,
-          totalA = 0;
-        for (let col of colorArray) {
-          totalR += col.r;
-          totalG += col.g;
-          totalB += col.b;
-          totalA += col.a;
-        }
-
-        let count = colorArray.length;
-        return {
-          r: totalR / count,
-          g: totalG / count,
-          b: totalB / count,
-          a: totalA / count,
-        };
-      }
-
-      function smudgePaint(x, y, prevX, prevY, size) {
-        paintingBuffer.loadPixels();
-
-        let newSamples = sampleRegion(x, y, size * 0.8);
-        sampleColors = [...sampleColors, ...newSamples];
-        if (sampleColors.length > maxSamples) {
-          sampleColors = sampleColors.slice(-maxSamples);
-        }
-
-        let avgColor = averageColors(sampleColors);
-        let steps = p.dist(prevX, prevY, x, y);
-        steps = p.max(1, steps);
-
-        for (let i = 0; i <= steps; i++) {
-          let t = i / steps;
-          let ix = p.lerp(prevX, x, t);
-          let iy = p.lerp(prevY, y, t);
-          paintSoftBrush(ix, iy, size, avgColor);
-        }
-
-        paintingBuffer.updatePixels();
-      }
-
-      function paintSoftBrush(x, y, size, col) {
-        if (!brushAlpha || brushAlpha.width === 0) return;
-
-        let radius = size / 2;
-        let startX = Math.floor(Math.max(0, x - radius));
-        let endX = Math.floor(Math.min(img.width - 1, x + radius));
-        let startY = Math.floor(Math.max(0, y - radius));
-        let endY = Math.floor(Math.min(img.height - 1, y + radius));
-
-        for (let py = startY; py <= endY; py++) {
-          for (let px = startX; px <= endX; px++) {
-            let d = p.dist(px, py, x, y);
-
-            if (d < radius) {
-              let brushX = Math.floor(
-                p.map(px - (x - radius), 0, size, 0, brushAlpha.width),
-              );
-              let brushY = Math.floor(
-                p.map(py - (y - radius), 0, size, 0, brushAlpha.height),
-              );
-
-              if (
-                brushX >= 0 &&
-                brushX < brushAlpha.width &&
-                brushY >= 0 &&
-                brushY < brushAlpha.height
-              ) {
-                let brushIndex = (brushY * brushAlpha.width + brushX) * 4;
-                let alphaValue = brushAlpha.pixels[brushIndex];
-                let strength = (alphaValue / 255) * 0.95;
-
-                let index = (py * img.width + px) * 4;
-
-                paintingBuffer.pixels[index] = p.lerp(
-                  paintingBuffer.pixels[index],
-                  col.r,
-                  strength,
-                );
-                paintingBuffer.pixels[index + 1] = p.lerp(
-                  paintingBuffer.pixels[index + 1],
-                  col.g,
-                  strength,
-                );
-                paintingBuffer.pixels[index + 2] = p.lerp(
-                  paintingBuffer.pixels[index + 2],
-                  col.b,
-                  strength,
-                );
-              }
-            }
-          }
-        }
-      }
-
-      // Method to load new image
-      p.loadNewImage = function (newImagePath) {
-        p.loadImage(newImagePath, (newImg) => {
-          img = newImg;
-          paintingBuffer = p.createGraphics(img.width, img.height);
-          paintingBuffer.image(img, 0, 0);
-
-          scaleFactor = Math.min(600 / img.width, 400 / img.height, 1);
-          displayWidth = img.width * scaleFactor;
-          displayHeight = img.height * scaleFactor;
-
-          p.resizeCanvas(displayWidth, displayHeight);
-        });
-      };
-    };
-
-    this.sketch = new p5(sketch);
+    // Draw the masked paint onto main canvas
+    this.ctx.globalCompositeOperation = "source-over";
+    const drawX = Math.floor(x - this.brushPaint.centerX);
+    const drawY = Math.floor(y - this.brushPaint.centerY);
+    this.ctx.drawImage(tempCanvas, drawX, drawY);
   }
 }

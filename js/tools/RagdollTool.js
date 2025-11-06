@@ -4,7 +4,7 @@ import { Ragdoll } from "../physics/VerletPhysics.js";
 
 export class RagdollTool extends Tool {
   constructor() {
-    super();
+    super("ragdoll");
     this.ragdoll = null;
     this.lastTime = Date.now();
     this.gravity = { x: 0, y: 400 }; // pixels/s^2

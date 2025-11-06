@@ -1,11 +1,13 @@
 import { StateManager } from "./core/StateManager.js";
 import { ConnectionManager } from "./core/ConnectionManager.js";
 import { Canvas } from "./core/Canvas.js";
+import { ViewMode } from "./core/ViewMode.js";
 import { WorkNode } from "./nodes/WorkNode.js";
 import { ViewerNode } from "./nodes/ViewerNode.js";
 import { ToolNode } from "./nodes/ToolNode.js";
 import { ToolRegistry } from "./config/ToolRegistry.js";
 import { SmudgeTool } from "./tools/SmudgeTool.js";
+import { LAYOUT } from "./config/constants.js";
 
 // Main application entry point
 class PortfolioApp {
@@ -35,8 +37,14 @@ class PortfolioApp {
     // Set connection manager in canvas
     this.canvas.connectionManager = this.connectionManager;
 
-    // Create initial nodes
+    // Create ViewMode BEFORE nodes to prevent flash on initial load
+    this.viewMode = new ViewMode(this.stateManager, this.canvas);
+
+    // Create initial nodes (will be positioned correctly from start)
     this.createInitialSetup();
+
+    // Apply initial simplified mode immediately (no transition animation)
+    this.viewMode.applyModeImmediate();
 
     // Setup home button
     this.setupHomeButton();
@@ -91,6 +99,81 @@ class PortfolioApp {
     });
   }
 
+  checkAndResolveOverlaps(newNode) {
+    // Get all nodes except the new one
+    const allNodes = Array.from(this.stateManager.state.nodes.values());
+    const otherNodes = allNodes.filter((node) => node.id !== newNode.id);
+
+    // Get new node bounds
+    const newBounds = {
+      x: newNode.x,
+      y: newNode.y,
+      width: newNode.element.offsetWidth,
+      height: newNode.element.offsetHeight,
+    };
+
+    // Check for overlaps and collect overlapping nodes
+    const overlapping = otherNodes.filter((node) => {
+      const bounds = {
+        x: node.x,
+        y: node.y,
+        width: node.element.offsetWidth,
+        height: node.element.offsetHeight,
+      };
+
+      return !(
+        newBounds.x + newBounds.width + LAYOUT.OVERLAP_PADDING < bounds.x ||
+        newBounds.x > bounds.x + bounds.width + LAYOUT.OVERLAP_PADDING ||
+        newBounds.y + newBounds.height + LAYOUT.OVERLAP_PADDING < bounds.y ||
+        newBounds.y > bounds.y + bounds.height + LAYOUT.OVERLAP_PADDING
+      );
+    });
+
+    if (overlapping.length > 0) {
+      // Calculate center of new node
+      const newCenterX = newBounds.x + newBounds.width / 2;
+      const newCenterY = newBounds.y + newBounds.height / 2;
+
+      // Push overlapping nodes away
+      overlapping.forEach((node) => {
+        const nodeCenterX = node.x + node.element.offsetWidth / 2;
+        const nodeCenterY = node.y + node.element.offsetHeight / 2;
+
+        // Calculate push direction (away from new node)
+        const dx = nodeCenterX - newCenterX;
+        const dy = nodeCenterY - newCenterY;
+        const distance = Math.sqrt(dx * dx + dy * dy) || 1; // Avoid division by zero
+
+        // Normalize and scale push distance
+        const pushX = (dx / distance) * LAYOUT.OVERLAP_PUSH_DISTANCE;
+        const pushY = (dy / distance) * LAYOUT.OVERLAP_PUSH_DISTANCE;
+
+        // Calculate new position
+        const newX = node.x + pushX;
+        const newY = node.y + pushY;
+
+        // Animate the spread using CSS transition
+        node.element.style.transition = `left ${LAYOUT.OVERLAP_ANIMATION_DURATION}ms ease-out, top ${LAYOUT.OVERLAP_ANIMATION_DURATION}ms ease-out`;
+        node.element.style.left = `${newX}px`;
+        node.element.style.top = `${newY}px`;
+
+        // Update stored position
+        node.x = newX;
+        node.y = newY;
+
+        // Remove transition after animation completes
+        setTimeout(() => {
+          node.element.style.transition = "";
+        }, LAYOUT.OVERLAP_ANIMATION_DURATION);
+      });
+
+      // Trigger connection update after nodes move
+      setTimeout(() => {
+        this.stateManager.emit("connectionChanged");
+      }, 50);
+    }
+  }
+
   handleToolNodeRemoval(toolNodeId) {
     const toolNode = this.toolNodes.get(toolNodeId);
 
@@ -111,10 +194,10 @@ class PortfolioApp {
       }
     });
 
-    // Remove tool from pipeline
+    // Remove tool from pipeline by node ID
     if (toolNode.tool) {
       const pipeline = this.viewerNode.getPipeline();
-      pipeline.removeTool(toolNode.tool);
+      pipeline.removeTool(toolNodeId);
       toolNode.deactivate(this.viewerNode);
     }
 
@@ -131,42 +214,7 @@ class PortfolioApp {
   }
 
   handleToolEmblemClick(toolType, fromId, toId) {
-    // Check if clicking on a connection that goes TO a tool node
-    // If so, remove that tool node
-    if (this.toolNodes.has(toId)) {
-      const existingToolNode = this.toolNodes.get(toId);
-
-      // Find what the tool is connected to
-      const connections = this.stateManager.getConnections();
-      let nextNodeId = null;
-      connections.forEach(([fid, tid]) => {
-        if (fid === toId) {
-          nextNodeId = tid;
-        }
-      });
-
-      // Remove tool from pipeline and deactivate
-      if (existingToolNode.tool) {
-        const pipeline = this.viewerNode.getPipeline();
-        pipeline.removeTool(existingToolNode.tool);
-        existingToolNode.deactivate(this.viewerNode);
-      }
-
-      // Remove from canvas
-      this.canvas.removeNode(existingToolNode);
-      existingToolNode.remove();
-      this.toolNodes.delete(toId);
-
-      // Reconnect directly: fromId -> nextNode (bypass the tool)
-      this.stateManager.disconnectNodes(fromId);
-      this.stateManager.disconnectNodes(toId);
-      if (nextNodeId) {
-        this.stateManager.connectNodes(fromId, nextNodeId);
-      }
-      return;
-    }
-
-    // No existing tool, create new one
+    // Always insert a new tool node between fromId and toId
     const fromNode = this.stateManager.getNode(fromId);
     const toNode = this.stateManager.getNode(toId);
 
@@ -175,9 +223,21 @@ class PortfolioApp {
     // Create unique ID for this tool node
     const toolNodeId = `tool-${this.toolNodeCounter++}`;
 
-    // Position tool node at cable midpoint (where + emblem is)
-    const midX = (fromNode.x + toNode.x) / 2;
-    const midY = (fromNode.y + toNode.y) / 2;
+    // Calculate actual connection endpoints (same as ConnectionManager does)
+    const fromActualWidth = fromNode.element.offsetWidth;
+    const fromActualHeight = fromNode.element.offsetHeight;
+    const toActualWidth = toNode.element.offsetWidth;
+    const toActualHeight = toNode.element.offsetHeight;
+
+    // Connection goes from center-bottom of fromNode to center-top of toNode
+    const x1 = fromNode.x + fromActualWidth / 2;
+    const y1 = fromNode.y + fromActualHeight;
+    const x2 = toNode.x + toActualWidth / 2;
+    const y2 = toNode.y;
+
+    // Position tool node at exact cable midpoint (where + emblem is)
+    const midX = (x1 + x2) / 2;
+    const midY = (y1 + y2) / 2;
     const toolWidth = 140;
     const toolHeight = 60;
 
@@ -189,6 +249,9 @@ class PortfolioApp {
 
     this.canvas.addNode(toolNode);
 
+    // Check for overlaps and spread nodes if needed
+    this.checkAndResolveOverlaps(toolNode);
+
     // Setup tool using registry
     const tool = ToolRegistry.createTool(toolType);
 
@@ -196,9 +259,9 @@ class PortfolioApp {
       toolNode.setTool(tool);
       toolNode.activate(this.viewerNode);
 
-      // Add tool to the viewer's render pipeline
+      // Add tool to the viewer's render pipeline with its node ID
       const pipeline = this.viewerNode.getPipeline();
-      pipeline.addTool(tool);
+      pipeline.addTool(tool, toolNodeId);
 
       // If there's a current item, load it into the pipeline
       if (this.viewerNode.currentItem) {
@@ -209,13 +272,20 @@ class PortfolioApp {
     this.toolNodes.set(toolNodeId, toolNode);
 
     // Update connections: fromId -> tool -> toId
-    // Only disconnect the specific connection fromId -> toId
+    // We need to replace the connection fromId->toId with fromId->tool->toId
+    // But disconnectNodes(fromId) would remove ALL of fromId's connections
+    // So we check if there are other downstream connections first
+
+    const currentConnection = this.stateManager
+      .getConnections()
+      .find(([from]) => from === fromId);
+
+    // Disconnect only the fromId connection
     this.stateManager.disconnectNodes(fromId);
+
+    // Create new connections: fromId -> toolNode -> toId
     this.stateManager.connectNodes(fromId, toolNodeId);
     this.stateManager.connectNodes(toolNodeId, toId);
-
-    // Note: toId's outgoing connections are preserved automatically
-    // since they're keyed by toId in the connections Map
   }
 }
 

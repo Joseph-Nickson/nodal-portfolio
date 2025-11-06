@@ -1,0 +1,1 @@
+This is a test project showcasing multiple images in a carousel format. Navigate through the images using the arrow buttons.
