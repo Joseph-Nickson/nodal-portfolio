@@ -1,0 +1,69 @@
+[
+    {
+        "id": 1,
+        "title": "Experiment A",
+        "type": "image",
+        "image": "works/personal/2023 - Experiment A.jpeg",
+        "client": "Personal",
+        "contribution": "Concept Art",
+        "date": "2023",
+        "style": "Sci-Fi",
+        "featured": true
+    },
+    {
+        "id": 2,
+        "title": "Lava Environment",
+        "type": "image",
+        "image": "works/personal/2023 - Lava.jpeg",
+        "client": "Personal",
+        "contribution": "Environment Design",
+        "date": "2023",
+        "style": "Fantasy",
+        "featured": true
+    },
+    {
+        "id": 3,
+        "title": "Foliage Study",
+        "type": "image",
+        "image": "works/personal/2023 - Foliage.jpeg",
+        "client": "Personal",
+        "contribution": "Matte Painting",
+        "date": "2023",
+        "style": "Natural",
+        "featured": false
+    },
+    {
+        "id": 4,
+        "title": "Film Title - Trailer",
+        "type": "video",
+        "thumbnail": "works/personal/test-project/image1.jpeg",
+        "videoId": "YOUR_YOUTUBE_VIDEO_ID",
+        "client": "Film Studio Name",
+        "contribution": "Environment TD",
+        "date": "2024",
+        "style": "Cinematic",
+        "featured": true
+    },
+    {
+        "id": 5,
+        "title": "Test Project - Image 1",
+        "type": "image",
+        "image": "works/personal/test-project/image1.jpeg",
+        "client": "Personal",
+        "contribution": "Concept Art",
+        "date": "2024",
+        "style": "Experimental",
+        "featured": false
+    },
+    {
+        "id": 6,
+        "title": "Painting Study",
+        "type": "image",
+        "image": "works/tools/painting_1.jpeg",
+        "client": "Personal",
+        "contribution": "Matte Painting",
+        "date": "2024",
+        "style": "Traditional",
+        "featured": false
+    }
+]

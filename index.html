@@ -1,40 +1,85 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-        />
-        <title>Portfolio - Node System</title>
-        <link
-            rel="icon"
-            type="image/svg+xml"
-            href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%23e8e6e3'/%3E%3Ccircle cx='10' cy='10' r='3' fill='%23ff6b35'/%3E%3Ccircle cx='22' cy='22' r='3' fill='%23ff6b35'/%3E%3Cpath d='M10 10 L22 22' stroke='%23ff6b35' stroke-width='2'/%3E%3C/svg%3E"
-        />
-        <link rel="stylesheet" href="css/main.css" />
-    </head>
-    <body>
-        <div id="app" class="canvas-container"></div>
-        <button id="home-btn" class="home-btn" title="Frame all nodes (Home)">
-            <svg
-                width="24"
-                height="24"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-            >
-                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-                <polyline points="9 22 9 12 15 12 15 22"></polyline>
-            </svg>
-        </button>
-        <button id="help-btn" class="help-btn">
-            This experience confuses me
-        </button>
-        <div id="rejection-message" class="rejection-message">
-            LET'S NOT WORK TOGETHER
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joseph Nickson | Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-left">
+            <span class="nav-name">Joseph Nickson</span>
+            <a href="#index" class="nav-link active" data-section="index">Index</a>
+            <a href="#portfolio" class="nav-link" data-section="portfolio">Portfolio</a>
+            <a href="#info" class="nav-link" data-section="info">Info</a>
         </div>
-        <script type="module" src="js/main.js?v=9"></script>
-    </body>
+        <div class="nav-right">
+            <button id="randomBtn" class="icon-btn" title="Random Work">⚃</button>
+            <a href="#" id="showreelLink" class="nav-link">Showreel</a>
+        </div>
+    </nav>
+
+    <main>
+        <section id="index" class="section active">
+            <div class="filter-bar">
+                <div class="active-filters" id="activeFilters"></div>
+                <button id="clearFilters" class="clear-btn">Clear All</button>
+            </div>
+            <div class="works-table">
+                <div class="table-header">
+                    <div class="col-year">Year</div>
+                    <div class="col-client">Client</div>
+                    <div class="col-project">Project</div>
+                    <div class="col-kind">Discipline</div>
+                </div>
+                <div class="table-body" id="worksTable"></div>
+            </div>
+        </section>
+
+        <section id="portfolio" class="section">
+            <h2>Selected Works</h2>
+            <div class="grid" id="portfolioGrid"></div>
+        </section>
+
+        <section id="info" class="section">
+            <div class="content-container">
+                <h2>Joseph Nickson</h2>
+                <div class="info-content">
+                    <p class="intro">Senior environment TD and digital matte painter specialising in production-ready environments for film and episodic work.</p>
+                    
+                    <div class="info-grid">
+                        <div class="info-block">
+                            <h3>About</h3>
+                            <p>My work focuses on creating believable, large-scale environments that integrate seamlessly with lighting, layout, and compositing. I primarily work in Houdini and develop tools and pipelines to support efficient environment workflows in production.</p>
+                            <p>I have experience delivering matte painting work across both realistic and stylised directions, including illustrative 2.5D environments for IPs such as League of Legends & Love Death & Robots.</p>
+                            <p>Earlier in my career, I worked as a senior concept artist, contributing to environment design and world-building.</p>
+                        </div>
+                        
+                        <div class="info-block">
+                            <h3>Contact</h3>
+                            <p>Email: <a href="mailto:josephnickson@gmail.com">josephnickson@gmail.com</a></p>
+                            <p>ArtStation: <a href="https://www.artstation.com/artist/josephnickson" target="_blank">artstation.com/artist/josephnickson</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <div id="modal" class="modal">
+        <button class="modal-close">&times;</button>
+        <div class="modal-content">
+            <div class="modal-media" id="modalMedia"></div>
+            <div class="modal-info">
+                <h3 id="modalTitle"></h3>
+                <div class="modal-tags" id="modalTags"></div>
+            </div>
+        </div>
+        <button class="modal-nav modal-prev" id="modalPrev">‹</button>
+        <button class="modal-nav modal-next" id="modalNext">›</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
 </html>
