@@ -1,69 +1,213 @@
 [
-    {
-        "id": 1,
-        "title": "Experiment A",
-        "type": "image",
-        "image": "works/personal/2023 - Experiment A.jpeg",
-        "client": "Personal",
-        "contribution": "Concept Art",
-        "date": "2023",
-        "style": "Sci-Fi",
-        "featured": true
-    },
-    {
-        "id": 2,
-        "title": "Lava Environment",
-        "type": "image",
-        "image": "works/personal/2023 - Lava.jpeg",
-        "client": "Personal",
-        "contribution": "Environment Design",
-        "date": "2023",
-        "style": "Fantasy",
-        "featured": true
-    },
-    {
-        "id": 3,
-        "title": "Foliage Study",
-        "type": "image",
-        "image": "works/personal/2023 - Foliage.jpeg",
-        "client": "Personal",
-        "contribution": "Matte Painting",
-        "date": "2023",
-        "style": "Natural",
-        "featured": false
-    },
-    {
-        "id": 4,
-        "title": "Film Title - Trailer",
-        "type": "video",
-        "thumbnail": "works/personal/test-project/image1.jpeg",
-        "videoId": "YOUR_YOUTUBE_VIDEO_ID",
-        "client": "Film Studio Name",
-        "contribution": "Environment TD",
-        "date": "2024",
-        "style": "Cinematic",
-        "featured": true
-    },
-    {
-        "id": 5,
-        "title": "Test Project - Image 1",
-        "type": "image",
-        "image": "works/personal/test-project/image1.jpeg",
-        "client": "Personal",
-        "contribution": "Concept Art",
-        "date": "2024",
-        "style": "Experimental",
-        "featured": false
-    },
-    {
-        "id": 6,
-        "title": "Painting Study",
-        "type": "image",
-        "image": "works/tools/painting_1.jpeg",
-        "client": "Personal",
-        "contribution": "Matte Painting",
-        "date": "2024",
-        "style": "Traditional",
-        "featured": false
-    }
+  {
+    "id": "",
+    "title": "Wicked: For Good",
+    "type": "video",
+    "client": "Framestore",
+    "industry": "Film",
+    "contribution": "Environment TD",
+    "date": "2025",
+    "style": "Photorealistic",
+    "software": "Houdini; Photoshop",
+    "info": "",
+    "featured": true,
+    "videoId": "uUmdaUaGTPM",
+    "thumbnail": "https://img.youtube.com/vi/uUmdaUaGTPM/maxresdefault.jpg"
+  },
+  {
+    "id": "",
+    "title": "How to Train your Dragon",
+    "type": "video",
+    "client": "Framestore",
+    "industry": "Film",
+    "contribution": "Environment TD",
+    "date": "2024",
+    "style": "Photorealistic",
+    "software": "Houdini; Photoshop",
+    "info": "",
+    "featured": true,
+    "videoId": "22w7z_lT6YM",
+    "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/maxresdefault.jpg"
+  },
+  {
+    "id": "",
+    "title": "Jar",
+    "type": "image",
+    "client": "Personal",
+    "industry": "Personal",
+    "contribution": "Illustration",
+    "date": "2024",
+    "style": "",
+    "software": "",
+    "info": "Big text of text again",
+    "featured": true,
+    "image": "works/2024/jar/image.jpeg",
+    "images": [
+      "works/2024/jar/image.jpeg"
+    ]
+  },
+  {
+    "id": "",
+    "title": "Skull",
+    "type": "image",
+    "client": "Personal",
+    "industry": "Personal",
+    "contribution": "Illustration",
+    "date": "2024",
+    "style": "",
+    "software": "",
+    "info": "Testing text",
+    "featured": true,
+    "image": "works/2024/skull/image.jpeg",
+    "images": [
+      "works/2024/skull/image.jpeg"
+    ]
+  },
+  {
+    "id": "",
+    "title": "Test",
+    "type": "image",
+    "client": "Framestore; Apple TV",
+    "industry": "TV",
+    "contribution": "CG",
+    "date": "2024",
+    "style": "Photorealistic",
+    "software": "",
+    "info": "",
+    "featured": true,
+    "image": "works/2024/test/image.jpg",
+    "images": [
+      "works/2024/test/image.jpg",
+      "works/2024/test/image2.jpg"
+    ]
+  },
+  {
+    "id": "",
+    "title": "Fly Me to the Moon",
+    "type": "video",
+    "client": "Framestore; Apple TV",
+    "industry": "Film",
+    "contribution": "CG",
+    "date": "2023",
+    "style": "Photorealistic",
+    "software": "",
+    "info": "",
+    "featured": true,
+    "videoId": "lW7enw6mFxs",
+    "thumbnail": "works/2023/fly-me-to-the-moon/image.jpg"
+  },
+  {
+    "id": "",
+    "title": "Foliage Study",
+    "type": "image",
+    "client": "Personal",
+    "industry": "Personal",
+    "contribution": "Matte Painting",
+    "date": "2023",
+    "style": "Stylized",
+    "software": "",
+    "info": "",
+    "featured": true,
+    "image": "works/2023/foliage-study/image.jpg",
+    "images": [
+      "works/2023/foliage-study/image.jpg"
+    ]
+  },
+  {
+    "id": "",
+    "title": "Jar A",
+    "type": "image",
+    "client": "Personal",
+    "industry": "Personal",
+    "contribution": "Illustration",
+    "date": "2023",
+    "style": "Graphic",
+    "software": "Photoshop",
+    "info": "Test abc",
+    "featured": true,
+    "image": "works/2023/jar-a/image.jpg",
+    "images": [
+      "works/2023/jar-a/image.jpg",
+      "works/2023/jar-a/image2.jpg"
+    ]
+  },
+  {
+    "id": "",
+    "title": "Lava Lamp",
+    "type": "image",
+    "client": "Personal",
+    "industry": "Personal",
+    "contribution": "Environment Design",
+    "date": "2023",
+    "style": "Stylized",
+    "software": "",
+    "info": "",
+    "featured": true,
+    "image": "works/2023/lava-lamp/image.jpg",
+    "images": [
+      "works/2023/lava-lamp/image.jpg"
+    ]
+  },
+  {
+    "id": "",
+    "title": "Love Death & Robots",
+    "type": "video",
+    "client": "Axis Studios",
+    "industry": "Film",
+    "contribution": "Unknown",
+    "date": "2022",
+    "style": "Photorealistic",
+    "software": "",
+    "info": "",
+    "featured": true,
+    "videoId": "",
+    "thumbnail": "works/2022/love-death-robots/image.jpg"
+  },
+  {
+    "id": "",
+    "title": "Blue",
+    "type": "image",
+    "client": "Danny Daze",
+    "industry": "Music",
+    "contribution": "All",
+    "date": "2021",
+    "style": "Stylized",
+    "software": "Houdini; ae",
+    "info": "",
+    "featured": true,
+    "image": "works/2021/blue/image.jpg",
+    "images": [
+      "works/2021/blue/image.jpg"
+    ]
+  },
+  {
+    "id": "",
+    "title": "Don't Mess With Yordles",
+    "type": "video",
+    "client": "Leage of Legends",
+    "industry": "Games",
+    "contribution": "DMP",
+    "date": "2021",
+    "style": "",
+    "software": "",
+    "info": "",
+    "featured": true,
+    "videoId": "8QkVYl4r42U",
+    "thumbnail": "https://img.youtube.com/vi/8QkVYl4r42U/maxresdefault.jpg"
+  },
+  {
+    "id": "",
+    "title": "Love Death & Robots",
+    "type": "video",
+    "client": "Axis Studios",
+    "industry": "Film",
+    "contribution": "Matte Painting",
+    "date": "2020",
+    "style": "Photorealistic",
+    "software": "",
+    "info": "",
+    "featured": true,
+    "videoId": "",
+    "thumbnail": ""
+  }
 ]

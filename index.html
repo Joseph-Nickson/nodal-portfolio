@@ -1,85 +1,134 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joseph Nickson | Portfolio</title>
-    <link rel="stylesheet" href="styles.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="nav-left">
-            <span class="nav-name">Joseph Nickson</span>
-            <a href="#index" class="nav-link active" data-section="index">Index</a>
-            <a href="#portfolio" class="nav-link" data-section="portfolio">Portfolio</a>
-            <a href="#info" class="nav-link" data-section="info">Info</a>
-        </div>
-        <div class="nav-right">
-            <button id="randomBtn" class="icon-btn" title="Random Work">⚃</button>
-            <a href="#" id="showreelLink" class="nav-link">Showreel</a>
-        </div>
-    </nav>
-
-    <main>
-        <section id="index" class="section active">
-            <div class="filter-bar">
-                <div class="active-filters" id="activeFilters"></div>
-                <button id="clearFilters" class="clear-btn">Clear All</button>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Joseph Nickson | Portfolio</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <nav class="navbar">
+            <div class="nav-left">
+                <span class="nav-name">Joseph Nickson</span>
+                <a
+                    href="#portfolio"
+                    class="nav-link active"
+                    data-section="portfolio"
+                    >Portfolio</a
+                >
+                <a href="#index" class="nav-link" data-section="index">Index</a>
+                <a href="#info" class="nav-link" data-section="info">Info</a>
             </div>
-            <div class="works-table">
-                <div class="table-header">
-                    <div class="col-year">Year</div>
-                    <div class="col-client">Client</div>
-                    <div class="col-project">Project</div>
-                    <div class="col-kind">Discipline</div>
+            <div class="nav-right">
+                <button id="randomBtn" class="icon-btn" title="Random Work">
+                    ⚃
+                </button>
+                <a href="#" id="showreelLink" class="nav-link">Showreel</a>
+            </div>
+        </nav>
+
+        <main>
+            <section id="index" class="section">
+                <div class="filter-bar">
+                    <div class="active-filters" id="activeFilters"></div>
+                    <div class="filter-controls">
+                        <select id="filterSelect" class="filter-select">
+                            <option value="">Filter by...</option>
+                        </select>
+                        <button id="clearFilters" class="clear-btn">
+                            Clear All
+                        </button>
+                    </div>
                 </div>
-                <div class="table-body" id="worksTable"></div>
-            </div>
-        </section>
+                <div class="works-table">
+                    <div class="table-header">
+                        <div class="col-year">Year</div>
+                        <div class="col-client">Client</div>
+                        <div class="col-project">Project</div>
+                        <div class="col-contribution">Discipline</div>
+                        <div class="col-software">Software</div>
+                        <div class="col-style">Style</div>
+                    </div>
+                    <div class="table-body" id="worksTable"></div>
+                </div>
+            </section>
 
-        <section id="portfolio" class="section">
-            <h2>Selected Works</h2>
-            <div class="grid" id="portfolioGrid"></div>
-        </section>
+            <section id="portfolio" class="section active">
+                <div class="grid" id="portfolioGrid"></div>
+            </section>
 
-        <section id="info" class="section">
-            <div class="content-container">
-                <h2>Joseph Nickson</h2>
-                <div class="info-content">
-                    <p class="intro">Senior environment TD and digital matte painter specialising in production-ready environments for film and episodic work.</p>
-                    
-                    <div class="info-grid">
-                        <div class="info-block">
-                            <h3>About</h3>
-                            <p>My work focuses on creating believable, large-scale environments that integrate seamlessly with lighting, layout, and compositing. I primarily work in Houdini and develop tools and pipelines to support efficient environment workflows in production.</p>
-                            <p>I have experience delivering matte painting work across both realistic and stylised directions, including illustrative 2.5D environments for IPs such as League of Legends & Love Death & Robots.</p>
-                            <p>Earlier in my career, I worked as a senior concept artist, contributing to environment design and world-building.</p>
-                        </div>
-                        
-                        <div class="info-block">
-                            <h3>Contact</h3>
-                            <p>Email: <a href="mailto:josephnickson@gmail.com">josephnickson@gmail.com</a></p>
-                            <p>ArtStation: <a href="https://www.artstation.com/artist/josephnickson" target="_blank">artstation.com/artist/josephnickson</a></p>
+            <section id="info" class="section">
+                <div class="content-container">
+                    <h2>Joseph Nickson</h2>
+                    <div class="info-content">
+                        <p class="intro">
+                            Senior environment TD and digital matte painter
+                            specialising in production-ready environments for
+                            film and episodic work.
+                        </p>
+
+                        <div class="info-grid">
+                            <div class="info-block">
+                                <h3>About</h3>
+                                <p>
+                                    My work focuses on creating believable,
+                                    large-scale environments that integrate
+                                    seamlessly with lighting, layout, and
+                                    compositing. I primarily work in Houdini and
+                                    develop tools and pipelines to support
+                                    efficient environment workflows in
+                                    production.
+                                </p>
+                                <p>
+                                    I have experience delivering matte painting
+                                    work across both realistic and stylised
+                                    directions, including illustrative 2.5D
+                                    environments for IPs such as League of
+                                    Legends & Love Death & Robots.
+                                </p>
+                                <p>
+                                    Earlier in my career, I worked as a senior
+                                    concept artist, contributing to environment
+                                    design and world-building.
+                                </p>
+                            </div>
+
+                            <div class="info-block">
+                                <h3>Contact</h3>
+                                <p>
+                                    Email:
+                                    <a href="mailto:josephnickson@gmail.com"
+                                        >josephnickson@gmail.com</a
+                                    >
+                                </p>
+                                <p>
+                                    ArtStation:
+                                    <a
+                                        href="https://www.artstation.com/artist/josephnickson"
+                                        target="_blank"
+                                        >artstation.com/artist/josephnickson</a
+                                    >
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        </section>
-    </main>
+            </section>
+        </main>
 
-    <div id="modal" class="modal">
-        <button class="modal-close">&times;</button>
-        <div class="modal-content">
-            <div class="modal-media" id="modalMedia"></div>
-            <div class="modal-info">
-                <h3 id="modalTitle"></h3>
-                <div class="modal-tags" id="modalTags"></div>
+        <div id="modal" class="modal">
+            <button class="modal-close">&times;</button>
+            <div class="modal-content">
+                <div class="modal-media" id="modalMedia"></div>
+                <div class="modal-info">
+                    <h3 id="modalTitle"></h3>
+                    <div class="modal-tags" id="modalTags"></div>
+                </div>
             </div>
+            <button class="modal-nav modal-prev" id="modalPrev">‹</button>
+            <button class="modal-nav modal-next" id="modalNext">›</button>
         </div>
-        <button class="modal-nav modal-prev" id="modalPrev">‹</button>
-        <button class="modal-nav modal-next" id="modalNext">›</button>
-    </div>
 
-    <script src="script.js"></script>
-</body>
+        <script src="script.js"></script>
+    </body>
 </html>

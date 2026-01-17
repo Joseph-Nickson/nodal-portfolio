@@ -1,0 +1,14 @@
+{
+  "title": "Skull",
+  "type": "image",
+  "client": "Personal",
+  "industry": "Personal",
+  "contribution": "Illustration",
+  "date": "2024",
+  "style": "",
+  "info": "Testing text",
+  "featured": true,
+  "images": [
+    "image.jpeg"
+  ]
+}

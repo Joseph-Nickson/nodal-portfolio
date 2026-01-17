@@ -1,0 +1,15 @@
+{
+  "title": "Blue",
+  "type": "image",
+  "client": "Danny Daze",
+  "industry": "Music",
+  "contribution": "All",
+  "date": "2021",
+  "style": "Stylized",
+  "software": "Houdini; ae",
+  "info": "",
+  "featured": true,
+  "images": [
+    "image.jpg"
+  ]
+}

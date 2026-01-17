@@ -1,0 +1,16 @@
+{
+  "title": "Fly Me to the Moon",
+  "type": "video",
+  "client": "Framestore; Apple TV",
+  "industry": "Film",
+  "contribution": "CG",
+  "date": "2023",
+  "style": "Photorealistic",
+  "software": "",
+  "info": "",
+  "featured": true,
+  "images": [
+    "image.jpg"
+  ],
+  "videoId": "https://www.youtube.com/watch?v=lW7enw6mFxs"
+}

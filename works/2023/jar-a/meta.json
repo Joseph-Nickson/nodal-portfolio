@@ -1,0 +1,16 @@
+{
+  "title": "Jar A",
+  "type": "image",
+  "client": "Personal",
+  "industry": "Personal",
+  "contribution": "Illustration",
+  "date": "2023",
+  "style": "Graphic",
+  "software": "Photoshop",
+  "info": "Test abc",
+  "featured": true,
+  "images": [
+    "image.jpg",
+    "image2.jpg"
+  ]
+}

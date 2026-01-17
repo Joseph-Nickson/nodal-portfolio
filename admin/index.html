@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Portfolio Admin</title>
+        <link rel="stylesheet" href="admin.css" />
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>Portfolio Admin</h1>
+                <div class="header-actions">
+                    <button id="addWorkBtn" class="btn btn-primary">
+                        + Add New Work
+                    </button>
+                    <button id="buildBtn" class="btn btn-success">
+                        ⚙ Build & Deploy
+                    </button>
+                </div>
+            </header>
+
+            <div class="stats">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalWorks">0</div>
+                    <div class="stat-label">Total Works</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="featuredWorks">0</div>
+                    <div class="stat-label">Featured</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="lastBuild">Never</div>
+                    <div class="stat-label">Last Build</div>
+                </div>
+            </div>
+
+            <div class="filters">
+                <input type="text" id="searchInput" placeholder="Search..." />
+                <select id="yearFilter">
+                    <option value="">All Years</option>
+                </select>
+                <select id="industryFilter">
+                    <option value="">All Industries</option>
+                </select>
+                <select id="typeFilter">
+                    <option value="">All Types</option>
+                    <option value="image">Images</option>
+                    <option value="video">Videos</option>
+                </select>
+            </div>
+
+            <div class="works-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Preview</th>
+                            <th>Title</th>
+                            <th>Year</th>
+                            <th>Client</th>
+                            <th>Industry</th>
+                            <th>Contribution</th>
+                            <th>Featured</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="worksBody"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="modalTitle">Add New Work</h2>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <form id="workForm">
+                        <input type="hidden" name="workId" />
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Title *</label>
+                                <input type="text" name="title" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Year *</label>
+                                <input
+                                    type="text"
+                                    name="date"
+                                    required
+                                    pattern="[0-9]{4}"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Client *</label>
+                                <input type="text" name="client" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Industry *</label>
+                                <select name="industry" required>
+                                    <option value="">Select...</option>
+                                    <option value="Film">Film</option>
+                                    <option value="TV">TV</option>
+                                    <option value="Games">Games</option>
+                                    <option value="Advertising">
+                                        Advertising
+                                    </option>
+                                    <option value="Music">Music</option>
+                                    <option value="Personal">Personal</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Contribution *</label>
+                                <input
+                                    type="text"
+                                    name="contribution"
+                                    required
+                                    placeholder="e.g., Environment TD; Matte Painting"
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label>Style</label>
+                                <input
+                                    type="text"
+                                    name="style"
+                                    placeholder="e.g., Cinematic, Stylized"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Software</label>
+                            <input
+                                type="text"
+                                name="software"
+                                placeholder="e.g., Houdini; Nuke; Maya"
+                            />
+                        </div>
+
+                        <div class="form-group">
+                            <label>Description / Info</label>
+                            <textarea
+                                name="info"
+                                rows="4"
+                                placeholder="Describe your involvement, techniques used, or any other details..."
+                            ></textarea>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Type *</label>
+                                <select name="type" required>
+                                    <option value="image">Image</option>
+                                    <option value="video">Video</option>
+                                </select>
+                            </div>
+                            <div
+                                class="form-group"
+                                id="videoIdGroup"
+                                style="display: none"
+                            >
+                                <label>YouTube Video ID</label>
+                                <input
+                                    type="text"
+                                    name="videoId"
+                                    placeholder="e.g., dQw4w9WgXcQ"
+                                />
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Images</label>
+                            <div id="imagesGrid" class="images-grid"></div>
+                        </div>
+
+                        <div class="form-actions">
+                            <button
+                                type="button"
+                                class="btn btn-secondary"
+                                id="cancelBtn"
+                            >
+                                Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">
+                                Save Work
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div id="buildStatus" class="build-status"></div>
+
+        <script src="admin.js"></script>
+    </body>
+</html>
