@@ -1,0 +1,14 @@
+{
+  "name": "portfolio-website",
+  "version": "1.0.0",
+  "description": "Portfolio website for Joseph Nickson",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "node build-data.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "multer": "^2.0.2"
+  }
+}

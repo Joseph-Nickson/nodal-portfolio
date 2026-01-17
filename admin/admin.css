@@ -1,19 +1,14 @@
+@import url("../shared/variables.css");
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
 }
 
+/* Override accent for admin interface */
 :root {
-    --bg-dark: #1a1a1e;
-    --bg-secondary: #25252a;
-    --bg-hover: #2f2f35;
-    --text-primary: #e0e0e0;
-    --text-secondary: #888;
-    --accent: #4a9eff;
-    --success: #4caf50;
-    --error: #f44336;
-    --border: #3a3a40;
+    --accent: var(--accent-admin);
 }
 
 body {

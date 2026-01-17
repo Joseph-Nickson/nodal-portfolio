@@ -24,6 +24,7 @@
                     ⚃
                 </button>
                 <a href="#" id="showreelLink" class="nav-link">Showreel</a>
+                <a href="/admin" id="adminLink" class="nav-link" style="display: none;">Admin</a>
             </div>
         </nav>
 
@@ -118,17 +119,32 @@
 
         <div id="modal" class="modal">
             <button class="modal-close">&times;</button>
-            <div class="modal-content">
+            <div class="modal-container">
                 <div class="modal-media" id="modalMedia"></div>
-                <div class="modal-info">
+                <div class="modal-carousel" id="modalCarousel"></div>
+                <div class="modal-details">
                     <h3 id="modalTitle"></h3>
-                    <div class="modal-tags" id="modalTags"></div>
+                    <p class="modal-description" id="modalDescription"></p>
+                    <div class="modal-meta" id="modalTags"></div>
                 </div>
             </div>
             <button class="modal-nav modal-prev" id="modalPrev">‹</button>
             <button class="modal-nav modal-next" id="modalNext">›</button>
         </div>
 
+        <div id="showreelModal" class="modal">
+            <button class="modal-close" id="showreelClose">&times;</button>
+            <div class="modal-content">
+                <div class="modal-media" id="showreelMedia">
+                    <iframe src="" allowfullscreen></iframe>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shared modules (loaded first) -->
+        <script src="shared/utils.js"></script>
+        <script src="shared/config.js"></script>
+        <!-- Main script -->
         <script src="script.js"></script>
     </body>
 </html>

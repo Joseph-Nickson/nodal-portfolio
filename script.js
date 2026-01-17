@@ -4,37 +4,66 @@ let currentFilters = {};
 let currentWorkIndex = 0;
 let filteredWorks = [];
 
-// Helper: Format semicolon-separated values for display
-function formatMultiValue(value) {
-  if (!value) return "";
-  return value
-    .split(";")
-    .map((v) => v.trim())
-    .filter((v) => v)
-    .join(", ");
+// Wait for shared modules to load, with fallback
+function getUtils() {
+  return (
+    window.PortfolioUtils || {
+      formatMultiValue: (value) => {
+        if (!value) return "";
+        return value
+          .split(";")
+          .map((v) => v.trim())
+          .filter((v) => v)
+          .join(", ");
+      },
+      getMultiValues: (value) => {
+        if (!value) return [];
+        return value
+          .split(";")
+          .map((v) => v.trim())
+          .filter((v) => v);
+      },
+      slugify: (text) => {
+        if (!text) return "";
+        return text
+          .toString()
+          .toLowerCase()
+          .trim()
+          .replace(/\s+/g, "-")
+          .replace(/[^\w\-]+/g, "")
+          .replace(/\-\-+/g, "-")
+          .replace(/^-+/, "")
+          .replace(/-+$/, "");
+      },
+    }
+  );
 }
 
-// Helper: Get array from semicolon-separated value
-function getMultiValues(value) {
-  if (!value) return [];
-  return value
-    .split(";")
-    .map((v) => v.trim())
-    .filter((v) => v);
-}
-
-// Helper: Create URL-friendly slug from title
-function slugify(text) {
-  return text
-    .toLowerCase()
-    .replace(/[^\w\s-]/g, "")
-    .replace(/\s+/g, "-")
-    .replace(/--+/g, "-")
-    .trim();
+function getConfig() {
+  return (
+    window.PortfolioConfig || {
+      multiValueFields: ["client", "contribution", "software", "style"],
+      fieldLabels: {
+        client: "Client",
+        contribution: "Discipline",
+        date: "Year",
+        style: "Style",
+        software: "Software",
+      },
+      filterFields: [
+        { key: "client", label: "Client" },
+        { key: "date", label: "Year" },
+        { key: "contribution", label: "Discipline" },
+        { key: "software", label: "Software" },
+        { key: "style", label: "Style" },
+      ],
+    }
+  );
 }
 
 // Helper: Find work by slug
 function findWorkBySlug(slug) {
+  const { slugify } = getUtils();
   return allWorks.findIndex((work) => slugify(work.title) === slug);
 }
 
@@ -58,7 +87,6 @@ function parseURL() {
   if (params.has("date")) filters.date = params.get("date");
   if (params.has("style")) filters.style = params.get("style");
 
-  // Check for work parameter
   if (params.has("work")) {
     const slug = params.get("work");
     const index = findWorkBySlug(slug);
@@ -89,29 +117,19 @@ function applyURLState() {
   }
 }
 
-// Load data on page load
 // Populate filter dropdown with unique values
 function populateFilterDropdown() {
   const select = document.getElementById("filterSelect");
   if (!select) return;
 
-  // Fields that support multiple semicolon-separated values
-  const multiValueFields = ["client", "contribution", "software", "style"];
-
-  const filterFields = [
-    { key: "client", label: "Client" },
-    { key: "date", label: "Year" },
-    { key: "contribution", label: "Discipline" },
-    { key: "software", label: "Software" },
-    { key: "style", label: "Style" },
-  ];
+  const config = getConfig();
+  const { getMultiValues } = getUtils();
 
   select.innerHTML = '<option value="">Filter by...</option>';
 
-  filterFields.forEach((field) => {
+  config.filterFields.forEach((field) => {
     let values;
-    if (multiValueFields.includes(field.key)) {
-      // Extract individual values from semicolon-separated strings
+    if (config.multiValueFields.includes(field.key)) {
       values = [
         ...new Set(allWorks.flatMap((w) => getMultiValues(w[field.key]))),
       ].sort();
@@ -135,6 +153,7 @@ function populateFilterDropdown() {
   });
 }
 
+// Load data on page load
 async function loadData() {
   try {
     const response = await fetch("data.json");
@@ -149,6 +168,19 @@ async function loadData() {
   }
 }
 
+// Format multi-value field as clickable filter bubbles
+function formatAsFilterBubbles(value, filterKey) {
+  const { getMultiValues } = getUtils();
+  const values = getMultiValues(value);
+  if (values.length === 0) return "";
+  return values
+    .map(
+      (v) =>
+        `<span class="filter-value" data-filter-key="${filterKey}" data-filter-value="${v.replace(/"/g, '&quot;')}">${v}</span>`,
+    )
+    .join(" ");
+}
+
 // Render the main table
 function renderTable() {
   const table = document.getElementById("worksTable");
@@ -160,16 +192,32 @@ function renderTable() {
     const row = document.createElement("div");
     row.className = "table-row";
     const globalIndex = allWorks.indexOf(work);
-    row.onclick = () => openModal(globalIndex);
 
     row.innerHTML = `
-            <div class="col-year">${work.date}</div>
-            <div class="col-client">${formatMultiValue(work.client)}</div>
-            <div class="col-project">${work.title}</div>
-            <div class="col-contribution">${formatMultiValue(work.contribution)}</div>
-            <div class="col-software">${formatMultiValue(work.software)}</div>
-            <div class="col-style">${formatMultiValue(work.style)}</div>
-        `;
+      <div class="col-year">${work.date}</div>
+      <div class="col-client">${formatAsFilterBubbles(work.client, "client")}</div>
+      <div class="col-project">${work.title}</div>
+      <div class="col-contribution">${formatAsFilterBubbles(work.contribution, "contribution")}</div>
+      <div class="col-software">${formatAsFilterBubbles(work.software, "software")}</div>
+      <div class="col-style">${formatAsFilterBubbles(work.style, "style")}</div>
+    `;
+
+    // Add click handler for the row, but not for filter bubbles
+    row.addEventListener("click", (e) => {
+      if (!e.target.classList.contains("filter-value")) {
+        openModal(globalIndex);
+      }
+    });
+
+    // Add click handlers for filter bubbles
+    row.querySelectorAll(".filter-value").forEach((bubble) => {
+      bubble.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const key = bubble.dataset.filterKey;
+        const value = bubble.dataset.filterValue;
+        addFilter(key, value);
+      });
+    });
 
     table.appendChild(row);
   });
@@ -181,34 +229,79 @@ function renderPortfolio() {
   grid.innerHTML = "";
 
   const portfolioWorks = allWorks.filter((work) => work.featured);
+  const { getMultiValues } = getUtils();
+  const config = getConfig();
 
   portfolioWorks.forEach((work) => {
     const item = document.createElement("div");
     item.className = "grid-item";
     const globalIndex = allWorks.indexOf(work);
-    item.onclick = () => openModal(globalIndex);
+
+    // Use images array (standardized)
+    const displayImage =
+      work.images && work.images.length > 0
+        ? work.images[0]
+        : work.thumbnail || "";
+
+    // Build meta tags for hover panel
+    const buildMetaTags = (key, value) => {
+      const values = getMultiValues(value);
+      if (values.length === 0) return "";
+      return values.map((v) => `<span class="tile-tag">${v}</span>`).join("");
+    };
+
+    const metaTags = [
+      buildMetaTags("client", work.client),
+      buildMetaTags("contribution", work.contribution),
+      `<span class="tile-tag">${work.date}</span>`,
+      buildMetaTags("style", work.style),
+    ].filter(Boolean).join("");
 
     if (work.type === "video") {
       item.innerHTML = `
-                <img src="${work.thumbnail}" alt="${work.title}">
-                <div class="video-indicator"></div>
-            `;
+        <div class="tile-image">
+          <img src="${work.thumbnail || displayImage}" alt="${work.title}">
+          <div class="video-indicator"></div>
+        </div>
+        <div class="tile-info">
+          <h4>${work.title}</h4>
+          <div class="tile-tags">${metaTags}</div>
+        </div>
+      `;
     } else {
-      item.innerHTML = `<img src="${work.image}" alt="${work.title}">`;
+      item.innerHTML = `
+        <div class="tile-image">
+          <img src="${displayImage}" alt="${work.title}">
+        </div>
+        <div class="tile-info">
+          <h4>${work.title}</h4>
+          <div class="tile-tags">${metaTags}</div>
+        </div>
+      `;
     }
 
+    item.addEventListener("click", () => openModal(globalIndex));
     grid.appendChild(item);
   });
 }
 
+// Track current image in carousel
+let currentImageIndex = 0;
+
 // Open modal with work details
 function openModal(index) {
   currentWorkIndex = index;
+  currentImageIndex = 0;
   const work = allWorks[index];
   const modal = document.getElementById("modal");
   const modalMedia = document.getElementById("modalMedia");
+  const modalCarousel = document.getElementById("modalCarousel");
   const modalTitle = document.getElementById("modalTitle");
+  const modalDescription = document.getElementById("modalDescription");
   const modalTags = document.getElementById("modalTags");
+
+  const { slugify, getMultiValues } = getUtils();
+  const config = getConfig();
 
   modalTitle.textContent = work.title;
 
@@ -216,41 +309,92 @@ function openModal(index) {
   const slug = slugify(work.title);
   updateURL({ work: slug });
 
-  if (work.type === "video") {
-    modalMedia.innerHTML = `<iframe src="https://www.youtube.com/embed/${work.videoId}" allowfullscreen></iframe>`;
+  // Display info text if available
+  if (work.info && work.info.trim()) {
+    modalDescription.textContent = work.info;
+    modalDescription.style.display = "block";
   } else {
-    modalMedia.innerHTML = `<img src="${work.image}" alt="${work.title}">`;
+    modalDescription.style.display = "none";
   }
 
-  // Build tags, splitting multi-value fields into separate clickable tags
-  const buildTags = (label, key, value) => {
+  // Handle media display
+  if (work.type === "video") {
+    modalMedia.innerHTML = `<iframe src="https://www.youtube.com/embed/${work.videoId}" allowfullscreen></iframe>`;
+    modalCarousel.innerHTML = "";
+    modalCarousel.style.display = "none";
+  } else {
+    const displayImage = work.images && work.images.length > 0 ? work.images[0] : "";
+    modalMedia.innerHTML = `<img src="${displayImage}" alt="${work.title}" id="modalMainImage">`;
+
+    // Build carousel if multiple images
+    if (work.images && work.images.length > 1) {
+      modalCarousel.style.display = "flex";
+      modalCarousel.innerHTML = work.images
+        .map((img, i) => `<div class="carousel-thumb ${i === 0 ? 'active' : ''}" data-index="${i}"><img src="${img}" alt=""></div>`)
+        .join("");
+
+      // Add click handlers for thumbnails
+      modalCarousel.querySelectorAll(".carousel-thumb").forEach((thumb) => {
+        thumb.addEventListener("click", () => {
+          const imgIndex = parseInt(thumb.dataset.index);
+          setCarouselImage(imgIndex);
+        });
+      });
+    } else {
+      modalCarousel.innerHTML = "";
+      modalCarousel.style.display = "none";
+    }
+  }
+
+  // Build meta tags
+  const buildMetaItem = (label, key, value) => {
     const values = getMultiValues(value);
     if (values.length === 0) return "";
-    return values
-      .map(
-        (v) =>
-          `<div class="modal-tag" onclick="addFilter('${key}', '${v.replace(/'/g, "\\'")}')">
-            <span class="modal-tag-label">${label}</span>${v}
-          </div>`,
-      )
+    const valueSpans = values
+      .map((v) => `<span class="meta-value" onclick="addFilter('${key}', '${v.replace(/'/g, "\\'")}')">${v}</span>`)
       .join("");
+    return `<div class="meta-item"><span class="meta-label">${label}</span>${valueSpans}</div>`;
   };
 
   modalTags.innerHTML =
-    buildTags("Client", "client", work.client) +
-    buildTags("Discipline", "contribution", work.contribution) +
-    `<div class="modal-tag" onclick="addFilter('date', '${work.date}')">
-        <span class="modal-tag-label">Year</span>${work.date}
-    </div>` +
-    buildTags("Style", "style", work.style);
+    buildMetaItem(config.fieldLabels.client, "client", work.client) +
+    buildMetaItem(config.fieldLabels.contribution, "contribution", work.contribution) +
+    `<div class="meta-item"><span class="meta-label">${config.fieldLabels.date}</span><span class="meta-value" onclick="addFilter('date', '${work.date}')">${work.date}</span></div>` +
+    buildMetaItem(config.fieldLabels.style, "style", work.style) +
+    buildMetaItem(config.fieldLabels.software, "software", work.software);
 
   modal.classList.add("active");
   document.body.style.overflow = "hidden";
 }
 
+// Set carousel image
+function setCarouselImage(index) {
+  const work = allWorks[currentWorkIndex];
+  if (!work.images || index >= work.images.length) return;
+
+  currentImageIndex = index;
+  const mainImage = document.getElementById("modalMainImage");
+  if (mainImage) {
+    mainImage.src = work.images[index];
+  }
+
+  // Update active thumbnail
+  document.querySelectorAll(".carousel-thumb").forEach((thumb, i) => {
+    thumb.classList.toggle("active", i === index);
+  });
+}
+
 // Close modal
 function closeModal() {
   const modal = document.getElementById("modal");
+  const modalMedia = document.getElementById("modalMedia");
+
+  // Stop any playing video by clearing the iframe
+  const iframe = modalMedia.querySelector("iframe");
+  if (iframe) {
+    iframe.src = "";
+  }
+
   modal.classList.remove("active");
   document.body.style.overflow = "";
   updateURL(currentFilters);
@@ -279,12 +423,12 @@ function addFilter(type, value) {
 
 // Apply filters to works
 function applyFilters() {
-  const multiValueFields = ["client", "contribution", "software", "style"];
+  const config = getConfig();
+  const { getMultiValues } = getUtils();
 
   filteredWorks = allWorks.filter((work) => {
     return Object.entries(currentFilters).every(([key, value]) => {
-      if (multiValueFields.includes(key)) {
-        // Check if the filter value is one of the semicolon-separated values
+      if (config.multiValueFields.includes(key)) {
         const workValues = getMultiValues(work[key]);
         return workValues.includes(value);
       }
@@ -299,23 +443,17 @@ function applyFilters() {
 // Render active filter tags
 function renderActiveFilters() {
   const container = document.getElementById("activeFilters");
+  const config = getConfig();
   container.innerHTML = "";
 
   Object.entries(currentFilters).forEach(([key, value]) => {
     const tag = document.createElement("div");
     tag.className = "filter-tag";
 
-    const labelMap = {
-      client: "Client",
-      contribution: "Discipline",
-      date: "Year",
-      style: "Style",
-    };
-
     tag.innerHTML = `
-            ${labelMap[key] || key}: ${value}
-            <span class="remove">×</span>
-        `;
+      ${config.fieldLabels[key] || key}: ${value}
+      <span class="remove">×</span>
+    `;
     tag.onclick = () => removeFilter(key);
     container.appendChild(tag);
   });
@@ -347,7 +485,9 @@ function switchSection(sectionId) {
   document.getElementById(sectionId).classList.add("active");
   const targetLink = document.querySelector(`[data-section="${sectionId}"]`);
   if (targetLink) targetLink.classList.add("active");
-  window.location.hash = sectionId;
+
+  // Update hash without scrolling
+  history.replaceState(null, null, `#${sectionId}`);
   window.scrollTo(0, 0);
 }
 
@@ -357,16 +497,47 @@ function goToRandom() {
   openModal(randomIndex);
 }
 
+// Showreel functionality
+const SHOWREEL_VIDEO_ID = "xutmhyLQKxk";
+
+function openShowreel() {
+  const modal = document.getElementById("showreelModal");
+  const iframe = modal.querySelector("iframe");
+  iframe.src = `https://www.youtube.com/embed/${SHOWREEL_VIDEO_ID}?autoplay=1`;
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+}
+
+function closeShowreel() {
+  const modal = document.getElementById("showreelModal");
+  const iframe = modal.querySelector("iframe");
+  iframe.src = "";
+  modal.classList.remove("active");
+  document.body.style.overflow = "";
+}
+
 // Handle browser back/forward
 window.addEventListener("popstate", () => {
   applyURLState();
 });
 
+// Show admin link only when running locally
+function showAdminLinkIfLocal() {
+  const hostname = window.location.hostname;
+  if (hostname === "localhost" || hostname === "127.0.0.1") {
+    const adminLink = document.getElementById("adminLink");
+    if (adminLink) {
+      adminLink.style.display = "";
+    }
+  }
+}
+
 // Event listeners
 document.addEventListener("DOMContentLoaded", () => {
   loadData();
+  showAdminLinkIfLocal();
 
-  document.querySelectorAll(".nav-link").forEach((link) => {
+  document.querySelectorAll(".nav-link[data-section]").forEach((link) => {
     link.addEventListener("click", (e) => {
       e.preventDefault();
       const section = link.dataset.section;
@@ -404,6 +575,28 @@ document.addEventListener("DOMContentLoaded", () => {
       const [key, filterValue] = value.split(":");
       addFilter(key, filterValue);
       e.target.value = "";
+    }
+  });
+
+  // Showreel event listeners
+  document.getElementById("showreelLink").addEventListener("click", (e) => {
+    e.preventDefault();
+    openShowreel();
+  });
+
+  document.getElementById("showreelClose").addEventListener("click", closeShowreel);
+
+  document.getElementById("showreelModal").addEventListener("click", (e) => {
+    if (e.target.id === "showreelModal") {
+      closeShowreel();
+    }
+  });
+
+  // Update keydown to handle showreel modal too
+  document.addEventListener("keydown", (e) => {
+    const showreelModal = document.getElementById("showreelModal");
+    if (showreelModal.classList.contains("active")) {
+      if (e.key === "Escape") closeShowreel();
     }
   });
 });

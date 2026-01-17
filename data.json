@@ -1,6 +1,22 @@
 [
   {
-    "id": "",
+    "id": "2025-take-me-higher",
+    "title": "Take Me Higher",
+    "type": "image",
+    "client": "Cloudo & Mayhem",
+    "industry": "Music",
+    "contribution": "Illustration",
+    "date": "2025",
+    "style": "Stylized",
+    "software": "Photoshop",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
+    "featured": true,
+    "images": [
+      "works/2025/take-me-higher/image.png"
+    ]
+  },
+  {
+    "id": "2025-wicked-for-good",
     "title": "Wicked: For Good",
     "type": "video",
     "client": "Framestore",
@@ -9,13 +25,14 @@
     "date": "2025",
     "style": "Photorealistic",
     "software": "Houdini; Photoshop",
-    "info": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
+    "images": [],
     "videoId": "uUmdaUaGTPM",
     "thumbnail": "https://img.youtube.com/vi/uUmdaUaGTPM/maxresdefault.jpg"
   },
   {
-    "id": "",
+    "id": "2024-how-to-train-your-dragon",
     "title": "How to Train your Dragon",
     "type": "video",
     "client": "Framestore",
@@ -24,30 +41,31 @@
     "date": "2024",
     "style": "Photorealistic",
     "software": "Houdini; Photoshop",
-    "info": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
+    "images": [],
     "videoId": "22w7z_lT6YM",
     "thumbnail": "https://img.youtube.com/vi/22w7z_lT6YM/maxresdefault.jpg"
   },
   {
-    "id": "",
-    "title": "Jar",
+    "id": "2024-prehistoric-planet-ice-age",
+    "title": "Prehistoric Planet: Ice Age",
     "type": "image",
-    "client": "Personal",
-    "industry": "Personal",
-    "contribution": "Illustration",
+    "client": "Framestore; Apple TV",
+    "industry": "TV",
+    "contribution": "CG",
     "date": "2024",
-    "style": "",
+    "style": "Photorealistic",
     "software": "",
-    "info": "Big text of text again",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
-    "image": "works/2024/jar/image.jpeg",
     "images": [
-      "works/2024/jar/image.jpeg"
+      "works/2024/prehistoric-planet-ice-age/image.jpg",
+      "works/2024/prehistoric-planet-ice-age/image2.jpg"
     ]
   },
   {
-    "id": "",
+    "id": "2024-skull",
     "title": "Skull",
     "type": "image",
     "client": "Personal",
@@ -56,65 +74,96 @@
     "date": "2024",
     "style": "",
     "software": "",
-    "info": "Testing text",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
-    "image": "works/2024/skull/image.jpeg",
     "images": [
       "works/2024/skull/image.jpeg"
     ]
   },
   {
-    "id": "",
-    "title": "Test",
-    "type": "image",
-    "client": "Framestore; Apple TV",
-    "industry": "TV",
-    "contribution": "CG",
+    "id": "2024-wonka",
+    "title": "Wonka",
+    "type": "video",
+    "client": "Framestore",
+    "industry": "Film",
+    "contribution": "Digital Matte Painting",
     "date": "2024",
     "style": "Photorealistic",
-    "software": "",
-    "info": "",
+    "software": "Nuke; Photoshop",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
-    "image": "works/2024/test/image.jpg",
+    "images": [],
+    "videoId": "otNh9bTjXWg",
+    "thumbnail": "https://img.youtube.com/vi/otNh9bTjXWg/maxresdefault.jpg"
+  },
+  {
+    "id": "2023-ascending-into-the-clouds",
+    "title": "Ascending Into The Clouds",
+    "type": "video",
+    "client": "Hudson Mohawke; Tiga",
+    "industry": "Music",
+    "contribution": "Compositing",
+    "date": "2023",
+    "style": "",
+    "software": "Nuke",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
+    "featured": true,
+    "images": [],
+    "videoId": "fmxNtnr0U5w",
+    "thumbnail": "https://img.youtube.com/vi/fmxNtnr0U5w/maxresdefault.jpg"
+  },
+  {
+    "id": "2023-blue",
+    "title": "Blue",
+    "type": "image",
+    "client": "Danny Daze",
+    "industry": "Music",
+    "contribution": "All",
+    "date": "2023",
+    "style": "Stylized",
+    "software": "Houdini; Unreal; Substance Painter",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
+    "featured": true,
     "images": [
-      "works/2024/test/image.jpg",
-      "works/2024/test/image2.jpg"
+      "works/2023/blue/image.jpg"
     ]
   },
   {
-    "id": "",
+    "id": "2023-fly-me-to-the-moon",
     "title": "Fly Me to the Moon",
     "type": "video",
     "client": "Framestore; Apple TV",
     "industry": "Film",
-    "contribution": "CG",
+    "contribution": "Digital Matte Painting",
     "date": "2023",
     "style": "Photorealistic",
     "software": "",
-    "info": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
+    "images": [
+      "works/2023/fly-me-to-the-moon/image.jpg"
+    ],
     "videoId": "lW7enw6mFxs",
     "thumbnail": "works/2023/fly-me-to-the-moon/image.jpg"
   },
   {
-    "id": "",
+    "id": "2023-foliage-study",
     "title": "Foliage Study",
     "type": "image",
     "client": "Personal",
     "industry": "Personal",
-    "contribution": "Matte Painting",
+    "contribution": "Illustration",
     "date": "2023",
     "style": "Stylized",
     "software": "",
-    "info": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
-    "image": "works/2023/foliage-study/image.jpg",
     "images": [
       "works/2023/foliage-study/image.jpg"
     ]
   },
   {
-    "id": "",
+    "id": "2023-jar-a",
     "title": "Jar A",
     "type": "image",
     "client": "Personal",
@@ -123,91 +172,131 @@
     "date": "2023",
     "style": "Graphic",
     "software": "Photoshop",
-    "info": "Test abc",
+    "info": "Test abcLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
-    "image": "works/2023/jar-a/image.jpg",
     "images": [
       "works/2023/jar-a/image.jpg",
       "works/2023/jar-a/image2.jpg"
     ]
   },
   {
-    "id": "",
+    "id": "2023-lava-lamp",
     "title": "Lava Lamp",
     "type": "image",
     "client": "Personal",
     "industry": "Personal",
-    "contribution": "Environment Design",
+    "contribution": "Illustration",
     "date": "2023",
     "style": "Stylized",
     "software": "",
-    "info": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
-    "image": "works/2023/lava-lamp/image.jpg",
     "images": [
       "works/2023/lava-lamp/image.jpg"
     ]
   },
   {
-    "id": "",
+    "id": "2022-blocklords-protect-your-house",
+    "title": "Blocklords: Protect Your House",
+    "type": "video",
+    "client": "Axis Studios; Metaking",
+    "industry": "Games",
+    "contribution": "Digital Matte Painting",
+    "date": "2022",
+    "style": "",
+    "software": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
+    "featured": true,
+    "images": [
+      "works/2022/blocklords-protect-your-house/image.png"
+    ],
+    "videoId": "8S0Zkn_Fm1s",
+    "thumbnail": "works/2022/blocklords-protect-your-house/image.png"
+  },
+  {
+    "id": "2022-blocklords-slay-the-bear",
+    "title": "Blocklords: Slay The Bear",
+    "type": "video",
+    "client": "Axis Studios; Metaking",
+    "industry": "Games",
+    "contribution": "Digital Matte Painting",
+    "date": "2022",
+    "style": "",
+    "software": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
+    "featured": true,
+    "images": [
+      "works/2022/blocklords-slay-the-bear/image.png"
+    ],
+    "videoId": "DKdU7rLYOPg",
+    "thumbnail": "works/2022/blocklords-slay-the-bear/image.png"
+  },
+  {
+    "id": "2022-love-death-robots",
     "title": "Love Death & Robots",
     "type": "video",
     "client": "Axis Studios",
     "industry": "Film",
-    "contribution": "Unknown",
+    "contribution": "Digital Matte Painting",
     "date": "2022",
     "style": "Photorealistic",
     "software": "",
-    "info": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
+    "images": [
+      "works/2022/love-death-robots/image.jpg"
+    ],
     "videoId": "",
     "thumbnail": "works/2022/love-death-robots/image.jpg"
   },
   {
-    "id": "",
-    "title": "Blue",
-    "type": "image",
-    "client": "Danny Daze",
-    "industry": "Music",
-    "contribution": "All",
-    "date": "2021",
-    "style": "Stylized",
-    "software": "Houdini; ae",
-    "info": "",
-    "featured": true,
-    "image": "works/2021/blue/image.jpg",
-    "images": [
-      "works/2021/blue/image.jpg"
-    ]
-  },
-  {
-    "id": "",
+    "id": "2021-dont-mess-with-yordles",
     "title": "Don't Mess With Yordles",
     "type": "video",
     "client": "Leage of Legends",
     "industry": "Games",
-    "contribution": "DMP",
+    "contribution": "Digital Matte Painting",
     "date": "2021",
     "style": "",
     "software": "",
-    "info": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
+    "images": [],
     "videoId": "8QkVYl4r42U",
     "thumbnail": "https://img.youtube.com/vi/8QkVYl4r42U/maxresdefault.jpg"
   },
   {
-    "id": "",
-    "title": "Love Death & Robots",
+    "id": "2021-double-double-cross",
+    "title": "Double-Double Cross",
     "type": "video",
-    "client": "Axis Studios",
+    "client": "Leage of Legends",
+    "industry": "Games",
+    "contribution": "Digital Matte Painting",
+    "date": "2021",
+    "style": "",
+    "software": "",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
+    "featured": true,
+    "images": [],
+    "videoId": "lbJhZW-iN0s",
+    "thumbnail": "https://img.youtube.com/vi/lbJhZW-iN0s/maxresdefault.jpg"
+  },
+  {
+    "id": "2020-love-death-robots-the-tall-grass",
+    "title": "Love Death & Robots - The Tall Grass",
+    "type": "video",
+    "client": "Axis Studios; Netflix",
     "industry": "Film",
-    "contribution": "Matte Painting",
+    "contribution": "Digital Matte Painting",
     "date": "2020",
     "style": "Photorealistic",
-    "software": "",
-    "info": "",
+    "software": "Houdini; Nuke; Photoshop",
+    "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
     "featured": true,
+    "images": [
+      "works/2020/love-death-robots-the-tall-grass/image.jpg"
+    ],
     "videoId": "",
-    "thumbnail": ""
+    "thumbnail": "works/2020/love-death-robots-the-tall-grass/image.jpg"
   }
 ]

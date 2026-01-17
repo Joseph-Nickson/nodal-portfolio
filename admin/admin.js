@@ -1,11 +1,19 @@
 // Admin Interface for Works Management
-const API_BASE_URL = "http://localhost:3001/api";
+// Uses unified server at root (port 3000)
+
+// API base URL - always relative since admin is served by the same server
+const API_BASE_URL = "/api";
+
+// CSRF token storage
+let csrfToken = null;
 
 // State Management
 let works = [];
 let currentWork = null;
 let isEditMode = false;
 let currentImages = [];
+let pendingFiles = [];
+let allImages = [];
 
 // DOM Elements
 const elements = {
@@ -28,21 +36,76 @@ const elements = {
   buildStatus: document.getElementById("buildStatus"),
 };
 
-// Track pending new files
-let pendingFiles = [];
+// Drag and drop state
+let draggedElement = null;
+let draggedIndex = null;
 
-// Utility Functions
-function escapeHtml(text) {
-  if (!text) return "";
-  const div = document.createElement("div");
-  div.textContent = text;
-  return div.innerHTML;
+// Get utilities (with fallback)
+function getUtils() {
+  return (
+    window.PortfolioUtils || {
+      escapeHtml: (text) => {
+        if (!text) return "";
+        const div = document.createElement("div");
+        div.textContent = text;
+        return div.innerHTML;
+      },
+    }
+  );
 }
 
-// API wrapper with error handling
+// Get config (with fallback)
+function getConfig() {
+  return (
+    window.PortfolioConfig || {
+      industries: ["Film", "TV", "Games", "Advertising", "Music", "Personal"],
+      workTypes: ["image", "video"],
+    }
+  );
+}
+
+// Fetch CSRF token
+async function fetchCsrfToken() {
+  try {
+    const response = await fetch(`${API_BASE_URL}/csrf-token`);
+    const data = await response.json();
+    csrfToken = data.token;
+    return csrfToken;
+  } catch (error) {
+    console.error("Failed to fetch CSRF token:", error);
+    return null;
+  }
+}
+
+// API wrapper with error handling and CSRF
 async function apiRequest(url, options = {}) {
   try {
+    // Add CSRF token for mutating requests
+    if (["POST", "PUT", "DELETE"].includes(options.method)) {
+      if (!csrfToken) {
+        await fetchCsrfToken();
+      }
+      options.headers = {
+        ...options.headers,
+        "X-CSRF-Token": csrfToken,
+      };
+    }
+
     const response = await fetch(`${API_BASE_URL}${url}`, options);
+
+    // Refresh CSRF token if invalid
+    if (response.status === 403) {
+      await fetchCsrfToken();
+      options.headers["X-CSRF-Token"] = csrfToken;
+      const retryResponse = await fetch(`${API_BASE_URL}${url}`, options);
+      if (!retryResponse.ok) {
+        const errorData = await retryResponse.json().catch(() => ({}));
+        throw new Error(
+          errorData.message || `Request failed: ${retryResponse.status}`,
+        );
+      }
+      return await retryResponse.json();
+    }
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
@@ -77,16 +140,20 @@ function renderImagePreview(
   alt = "",
   size = { width: 60, height: 40 },
 ) {
+  const { escapeHtml } = getUtils();
   if (!imageSrc) {
     return `<div style="width: ${size.width}px; height: ${size.height}px; background: #3a3a40; border-radius: 4px;"></div>`;
   }
 
   return `<img src="${imageSrc}" alt="${escapeHtml(alt)}"
-                 style="width: ${size.width}px; height: ${size.height}px; object-fit: cover; border-radius: 4px;">`;
+           style="width: ${size.width}px; height: ${size.height}px; object-fit: cover; border-radius: 4px;">`;
 }
 
 // Initialize Application
-document.addEventListener("DOMContentLoaded", () => {
+document.addEventListener("DOMContentLoaded", async () => {
+  // Fetch CSRF token first
+  await fetchCsrfToken();
+
   initializeEventListeners();
   loadWorks();
   loadLastBuildTime();
@@ -103,11 +170,10 @@ function initializeEventListeners() {
   elements.industryFilter.addEventListener("change", filterWorks);
   elements.typeFilter.addEventListener("change", filterWorks);
 
-  // Type selector to show/hide video ID field
   const typeSelect = elements.workForm.querySelector('[name="type"]');
   typeSelect.addEventListener("change", toggleVideoIdField);
 
-  // Close modal on outside click - auto save (only if mousedown started on modal backdrop)
+  // Close modal on outside click - auto save
   let mouseDownTarget = null;
   elements.modal.addEventListener("mousedown", (e) => {
     mouseDownTarget = e.target;
@@ -119,12 +185,10 @@ function initializeEventListeners() {
     mouseDownTarget = null;
   });
 
-  // X button just closes without saving
   elements.modal
     .querySelector(".modal-close")
     .addEventListener("click", closeModal);
 
-  // Initialize drag and drop for image reordering
   initializeDragAndDrop();
 }
 
@@ -144,9 +208,6 @@ function saveLastBuildTime() {
 }
 
 // Image Management
-// Unified image list for ordering (combines existing + pending)
-let allImages = []; // { type: 'existing'|'pending', src: string, file?: File }
-
 function buildAllImages() {
   allImages = [];
   currentImages.forEach((src) => {
@@ -162,7 +223,6 @@ function renderImagesGrid() {
 
   let html = "";
 
-  // Render all images in order
   allImages.forEach((img, index) => {
     html += `
       <div class="image-preview-item" draggable="true" data-index="${index}">
@@ -173,7 +233,6 @@ function renderImagesGrid() {
     `;
   });
 
-  // Add the + button
   html += `
     <label class="add-image-btn">
       +
@@ -183,7 +242,6 @@ function renderImagesGrid() {
 
   elements.imagesGrid.innerHTML = html;
 
-  // Add event listener for file input
   const fileInput = document.getElementById("imageFileInput");
   fileInput.addEventListener("change", handleFileSelect);
 }
@@ -207,11 +265,9 @@ function removeImage(index) {
 }
 
 function reorderImages(fromIndex, toIndex) {
-  // Move in allImages
   const [moved] = allImages.splice(fromIndex, 1);
   allImages.splice(toIndex, 0, moved);
 
-  // Rebuild currentImages and pendingFiles from allImages order
   currentImages = [];
   pendingFiles = [];
   allImages.forEach((img) => {
@@ -225,10 +281,7 @@ function reorderImages(fromIndex, toIndex) {
   renderImagesGrid();
 }
 
-// Drag and Drop for image reordering
-let draggedElement = null;
-let draggedIndex = null;
-
+// Drag and Drop
 function initializeDragAndDrop() {
   elements.imagesGrid.addEventListener("dragstart", (e) => {
     const item = e.target.closest(".image-preview-item");
@@ -282,7 +335,6 @@ function initializeDragAndDrop() {
     draggedIndex = null;
   });
 
-  // Handle remove button clicks
   elements.imagesGrid.addEventListener("click", (e) => {
     if (e.target.classList.contains("remove-image")) {
       const index = parseInt(e.target.dataset.index);
@@ -307,20 +359,23 @@ async function loadWorks() {
 
 // Render Works Table
 function renderWorks(worksToRender) {
+  const { escapeHtml } = getUtils();
+
   if (!worksToRender || worksToRender.length === 0) {
     elements.worksBody.innerHTML =
       '<tr><td colspan="8" style="text-align: center; padding: 2rem;">No works found</td></tr>';
     return;
   }
 
-  elements.worksBody.innerHTML = worksToRender
+  // Reverse order so newest works appear first
+  const reversedWorks = [...worksToRender].reverse();
+
+  elements.worksBody.innerHTML = reversedWorks
     .map((work) => {
-      // Fix thumbnail display - get correct path
       let previewSrc = null;
       if (work.images && work.images.length > 0) {
-        // Images array contains paths like "works/2024/slug/image.jpg"
-        // Use relative path from admin directory
-        previewSrc = `../${work.images[0]}`;
+        // When served from unified server, use absolute path
+        previewSrc = `/${work.images[0]}`;
       } else if (work.type === "video" && work.thumbnail) {
         previewSrc = work.thumbnail;
       }
@@ -329,27 +384,28 @@ function renderWorks(worksToRender) {
       const featuredClass = work.featured ? "active" : "";
 
       return `
-            <tr data-work-id="${work.id}">
-                <td>${previewImg}</td>
-                <td class="editable" data-field="title">${escapeHtml(work.title)}</td>
-                <td class="editable" data-field="date">${escapeHtml(work.date)}</td>
-                <td class="editable" data-field="client">${escapeHtml(work.client || "-")}</td>
-                <td class="editable" data-field="industry">${escapeHtml(work.industry || "-")}</td>
-                <td class="editable" data-field="contribution">${escapeHtml(work.contribution || "-")}</td>
-                <td><span class="featured-checkbox ${featuredClass}" data-work-id="${work.id}" onclick="toggleFeatured('${work.id}')">⭐</span></td>
-                <td>
-                    <button class="btn btn-small btn-edit" onclick="openEditModal('${work.id}')">Edit</button>
-                    <button class="btn btn-small btn-duplicate" onclick="handleDuplicate('${work.id}')">Duplicate</button>
-                    <button class="btn btn-small btn-delete" onclick="handleDelete('${work.id}')">Delete</button>
-                </td>
-            </tr>
-        `;
+        <tr data-work-id="${work.id}">
+          <td>${previewImg}</td>
+          <td class="editable" data-field="title">${escapeHtml(work.title)}</td>
+          <td class="editable" data-field="date">${escapeHtml(work.date)}</td>
+          <td class="editable" data-field="client">${escapeHtml(work.client || "-")}</td>
+          <td class="editable" data-field="industry">${escapeHtml(work.industry || "-")}</td>
+          <td class="editable" data-field="contribution">${escapeHtml(work.contribution || "-")}</td>
+          <td><span class="featured-checkbox ${featuredClass}" data-work-id="${work.id}" onclick="toggleFeatured('${work.id}')">⭐</span></td>
+          <td>
+            <button class="btn btn-small btn-edit" onclick="openEditModal('${work.id}')">Edit</button>
+            <button class="btn btn-small btn-duplicate" onclick="handleDuplicate('${work.id}')">Duplicate</button>
+            <button class="btn btn-small btn-delete" onclick="handleDelete('${work.id}')">Delete</button>
+          </td>
+        </tr>
+      `;
     })
     .join("");
 }
 
 // Populate Filter Dropdowns
 function populateFilters() {
+  const { escapeHtml } = getUtils();
   const years = [...new Set(works.map((w) => w.date).filter(Boolean))]
     .sort()
     .reverse();
@@ -390,6 +446,11 @@ async function toggleFeatured(workId) {
   const newFeatured = !work.featured;
 
   try {
+    // Ensure we have a CSRF token
+    if (!csrfToken) {
+      await fetchCsrfToken();
+    }
+
     const formData = new FormData();
     formData.set("title", work.title);
     formData.set("date", work.date);
@@ -397,6 +458,9 @@ async function toggleFeatured(workId) {
 
     const response = await fetch(`${API_BASE_URL}/works/${workId}`, {
       method: "PUT",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      },
       body: formData,
     });
 
@@ -404,7 +468,6 @@ async function toggleFeatured(workId) {
       throw new Error("Failed to update featured status");
     }
 
-    // Update local state
     work.featured = newFeatured;
     renderWorks(getFilteredWorks());
     updateStats();
@@ -475,17 +538,13 @@ function closeModal() {
   allImages = [];
 }
 
-// Save and close modal (triggered by clicking outside)
 async function saveAndCloseModal() {
-  // Check if form has required fields filled
   const title = elements.workForm.querySelector('[name="title"]').value;
   const date = elements.workForm.querySelector('[name="date"]').value;
 
   if (title && date) {
-    // Submit the form programmatically
     await handleFormSubmit(new Event("submit"));
   } else {
-    // If required fields missing, just close
     closeModal();
   }
 }
@@ -508,9 +567,9 @@ function populateForm(work) {
   elements.workForm.querySelector('[name="videoId"]').value =
     work.videoId || "";
 
-  // Show existing images with correct paths
+  // Use absolute paths from unified server
   if (work.images && work.images.length > 0) {
-    currentImages = work.images.map((img) => `../${img}`);
+    currentImages = work.images.map((img) => `/${img}`);
   } else {
     currentImages = [];
   }
@@ -529,17 +588,18 @@ function toggleVideoIdField() {
 async function handleFormSubmit(event) {
   event.preventDefault();
 
-  // Prevent double-submit
   if (elements.workForm.dataset.submitting === "true") return;
   elements.workForm.dataset.submitting = "true";
 
   try {
-    const formData = new FormData(elements.workForm);
+    // Ensure we have a CSRF token
+    if (!csrfToken) {
+      await fetchCsrfToken();
+    }
 
-    // Remove the file input field (we handle files separately)
+    const formData = new FormData(elements.workForm);
     formData.delete("images");
 
-    // Add pending files
     pendingFiles.forEach((file) => {
       formData.append("images", file);
     });
@@ -557,6 +617,9 @@ async function handleFormSubmit(event) {
 
     const response = await fetch(`${API_BASE_URL}${url}`, {
       method: method,
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      },
       body: formData,
     });
 
@@ -622,6 +685,11 @@ async function handleDuplicate(workId) {
   if (!work) return;
 
   try {
+    // Ensure we have a CSRF token
+    if (!csrfToken) {
+      await fetchCsrfToken();
+    }
+
     showStatus("Duplicating work...", "info");
 
     const formData = new FormData();
@@ -639,6 +707,9 @@ async function handleDuplicate(workId) {
 
     const response = await fetch(`${API_BASE_URL}/works`, {
       method: "POST",
+      headers: {
+        "X-CSRF-Token": csrfToken,
+      },
       body: formData,
     });
 

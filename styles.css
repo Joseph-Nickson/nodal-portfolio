@@ -1,18 +1,9 @@
+@import url("shared/variables.css");
+
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-}
-
-:root {
-    --bg-dark: #1a1a1e;
-    --bg-secondary: #25252a;
-    --bg-hover: #2f2f35;
-    --text-primary: #e0e0e0;
-    --text-secondary: #888;
-    --accent: #fff;
-    --border: #3a3a40;
-    --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
@@ -33,7 +24,7 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.5rem 3rem;
+    padding: 0.9rem 3rem;
     background: rgba(10, 10, 10, 0.9);
     backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--border);
@@ -76,6 +67,8 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
+    line-height: 1;
+    padding: 0;
 }
 
 .icon-btn:hover {
@@ -92,9 +85,9 @@ body {
 }
 
 main {
-    margin-top: 80px;
+    margin-top: 52px;
     padding: 2rem 3rem;
-    min-height: calc(100vh - 80px);
+    min-height: calc(100vh - 52px);
 }
 
 .section {
@@ -193,7 +186,7 @@ main {
 
 .grid {
     column-count: 4;
-    column-gap: 1.5rem;
+    column-gap: 1rem;
     margin-bottom: 3rem;
 }
 
@@ -201,23 +194,65 @@ main {
     position: relative;
     cursor: pointer;
     overflow: hidden;
-    border-radius: 4px;
+    border-radius: 6px;
     background: var(--bg-secondary);
-    margin-bottom: 1.5rem;
+    margin-bottom: 1rem;
     break-inside: avoid;
     display: inline-block;
     width: 100%;
-    transition: transform var(--transition);
 }
 
-.grid-item:hover {
-    transform: scale(1.02);
+.tile-image {
+    position: relative;
+    overflow: hidden;
 }
 
-.grid-item img {
+.tile-image img {
     width: 100%;
     height: auto;
     display: block;
+    transition: opacity var(--transition);
+}
+
+.grid-item:hover .tile-image img {
+    opacity: 0.3;
+}
+
+.tile-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.75rem;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+    opacity: 0;
+    transition: opacity var(--transition);
+}
+
+.grid-item:hover .tile-info {
+    opacity: 1;
+}
+
+.tile-info h4 {
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-bottom: 0.4rem;
+    color: var(--accent);
+}
+
+.tile-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem;
+}
+
+.tile-tag {
+    font-size: 0.55rem;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 0.1rem 0.35rem;
+    border-radius: 3px;
+    color: var(--text-primary);
 }
 
 .grid-item .video-indicator {
@@ -226,12 +261,13 @@ main {
 
 .works-table {
     width: 100%;
-    font-size: 0.855rem;
+    font-size: 0.77rem;
 }
 
 .table-header {
     display: grid;
-    grid-template-columns: 60px 160px 1fr 140px 140px 120px;
+    grid-template-columns: 60px 180px 1fr 160px 160px 120px;
+    gap: 1rem;
     padding: 1rem 2rem;
     border-bottom: 1px solid var(--border);
     color: #5a5a5a;
@@ -247,7 +283,8 @@ main {
 
 .table-row {
     display: grid;
-    grid-template-columns: 60px 160px 1fr 140px 140px 120px;
+    grid-template-columns: 60px 180px 1fr 160px 160px 120px;
+    gap: 1rem;
     padding: 1rem 2rem;
     border-bottom: 1px solid var(--border);
     cursor: pointer;
@@ -282,6 +319,35 @@ main {
 
 .col-style {
     color: var(--text-secondary);
+}
+
+/* Clickable filter values */
+.filter-value {
+    display: inline;
+    background: var(--bg-secondary);
+    border: 1px solid transparent;
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
+    margin-right: 0.25rem;
+    transition: all var(--transition);
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.filter-value:hover {
+    border-color: var(--border);
+    background: var(--bg-hover);
+    color: var(--accent);
+}
+
+/* Ensure table columns don't wrap */
+.col-client,
+.col-contribution,
+.col-software,
+.col-style {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 @media (max-width: 1024px) {
@@ -404,9 +470,11 @@ h2 {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.95);
+    background: rgba(0, 0, 0, 0.92);
     z-index: 1000;
     animation: fadeIn 0.3s ease;
+    overflow-y: auto;
+    padding: 2rem;
 }
 
 .modal.active {
@@ -415,79 +483,150 @@ h2 {
     justify-content: center;
 }
 
-.modal-content {
-    position: relative;
-    max-width: 90vw;
+.modal-container {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    max-width: 900px;
+    width: 100%;
     max-height: 90vh;
+    overflow-y: auto;
     display: flex;
     flex-direction: column;
-    gap: 2rem;
 }
 
 .modal-media {
-    max-width: 100%;
-    max-height: 70vh;
+    width: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
+    background: var(--bg-dark);
+    border-radius: 8px 8px 0 0;
 }
 
 .modal-media img {
-    max-width: 100%;
-    max-height: 70vh;
+    width: 100%;
+    max-height: 60vh;
     object-fit: contain;
-    border-radius: 4px;
 }
 
 .modal-media iframe {
-    width: 80vw;
-    height: 45vw;
-    max-width: 1200px;
-    max-height: 675px;
+    width: 100%;
+    aspect-ratio: 16 / 9;
     border: none;
-    border-radius: 4px;
 }
 
-.modal-info {
-    text-align: center;
-}
-
-.modal-info h3 {
-    font-size: 1.5rem;
-    font-weight: 300;
-    margin-bottom: 1.5rem;
-    letter-spacing: 0.05em;
-}
-
-.modal-tags {
+/* Image carousel */
+.modal-carousel {
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: var(--bg-dark);
+    overflow-x: auto;
     justify-content: center;
-    flex-wrap: wrap;
 }
 
-.modal-tag {
-    background: var(--bg-secondary);
-    border: 1px solid var(--border);
-    padding: 0.6rem 1.2rem;
+.modal-carousel::-webkit-scrollbar {
+    height: 4px;
+}
+
+.modal-carousel::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 2px;
+}
+
+.carousel-thumb {
+    flex-shrink: 0;
+    width: 60px;
+    height: 40px;
     border-radius: 4px;
+    overflow: hidden;
+    cursor: pointer;
+    opacity: 0.5;
+    border: 2px solid transparent;
+    transition: all var(--transition);
+}
+
+.carousel-thumb:hover {
+    opacity: 0.8;
+}
+
+.carousel-thumb.active {
+    opacity: 1;
+    border-color: var(--accent);
+}
+
+.carousel-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Modal details section */
+.modal-details {
+    padding: 1rem 1.25rem;
+}
+
+.modal-details h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin-bottom: 0.6rem;
+    padding-bottom: 0.6rem;
+    border-bottom: 1px solid var(--border);
+    letter-spacing: 0.02em;
+}
+
+.modal-description {
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+}
+
+.modal-meta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0;
+    font-size: 0.65rem;
+}
+
+.meta-item {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+    padding-right: 0.6rem;
+    margin-right: 0.6rem;
+    border-right: 1px solid var(--border);
+}
+
+.meta-item:last-child {
+    border-right: none;
+    margin-right: 0;
+    padding-right: 0;
+}
+
+.meta-label {
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.55rem;
+}
+
+.meta-value {
+    background: var(--bg-dark);
+    border: 1px solid var(--border);
+    padding: 0.15rem 0.4rem;
+    border-radius: 3px;
     cursor: pointer;
     transition: all var(--transition);
-    font-size: 0.9rem;
 }
 
-.modal-tag:hover {
-    background: var(--bg-hover);
+.meta-value:hover {
     border-color: var(--accent);
     color: var(--accent);
-}
-
-.modal-tag-label {
-    opacity: 0.6;
-    font-size: 0.8rem;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    margin-right: 0.5rem;
 }
 
 .modal-close {

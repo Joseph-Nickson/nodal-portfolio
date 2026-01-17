@@ -1,0 +1,16 @@
+{
+  "title": "Prehistoric Planet: Ice Age",
+  "type": "image",
+  "client": "Framestore; Apple TV",
+  "industry": "TV",
+  "contribution": "CG",
+  "date": "2024",
+  "style": "Photorealistic",
+  "software": "",
+  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
+  "featured": true,
+  "images": [
+    "image.jpg",
+    "image2.jpg"
+  ]
+}
