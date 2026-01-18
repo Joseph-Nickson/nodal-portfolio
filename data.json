@@ -65,6 +65,22 @@
     ]
   },
   {
+    "id": "2024-product-re-release",
+    "title": "Product Re-release",
+    "type": "image",
+    "client": "Numbers",
+    "industry": "Music",
+    "contribution": "Illustration",
+    "date": "2024",
+    "style": "",
+    "software": "3ds Max; Photoshop",
+    "info": "",
+    "featured": true,
+    "images": [
+      "works/2024/product-re-release/image.jpg"
+    ]
+  },
+  {
     "id": "2024-skull",
     "title": "Skull",
     "type": "image",
@@ -176,7 +192,10 @@
     "featured": true,
     "images": [
       "works/2023/jar-a/image.jpg",
-      "works/2023/jar-a/image2.jpg"
+      {
+        "src": "works/2023/jar-a/image2.jpg",
+        "caption": "TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw"
+      }
     ]
   },
   {

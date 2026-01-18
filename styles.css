@@ -190,6 +190,12 @@ main {
     margin-bottom: 3rem;
 }
 
+@media (max-width: 1200px) {
+    .grid {
+        column-count: 3;
+    }
+}
+
 .grid-item {
     position: relative;
     cursor: pointer;
@@ -198,8 +204,6 @@ main {
     background: var(--bg-secondary);
     margin-bottom: 1rem;
     break-inside: avoid;
-    display: inline-block;
-    width: 100%;
 }
 
 .tile-image {
@@ -474,25 +478,38 @@ h2 {
     z-index: 1000;
     animation: fadeIn 0.3s ease;
     overflow-y: auto;
-    padding: 2rem;
 }
 
 .modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: block;
 }
 
-.modal-container {
+/* Scrollable container for modal cards */
+.modal-scroll-container {
+    max-width: min(800px, 85vw);
+    width: 100%;
+    margin: 0 auto;
+    padding: 2rem 2rem 4rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+
+
+/* Individual modal cards */
+.modal-card {
     background: var(--bg-secondary);
     border: 1px solid var(--border);
     border-radius: 8px;
-    max-width: 900px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
+    overflow: hidden;
+}
+
+/* Main media card */
+.modal-card-media {
     display: flex;
-    flex-direction: column;
+    align-items: center;
+    justify-content: center;
 }
 
 .modal-media {
@@ -501,13 +518,12 @@ h2 {
     align-items: center;
     justify-content: center;
     background: var(--bg-dark);
-    border-radius: 8px 8px 0 0;
 }
 
 .modal-media img {
     width: 100%;
-    max-height: 60vh;
-    object-fit: contain;
+    height: auto;
+    display: block;
 }
 
 .modal-media iframe {
@@ -516,62 +532,16 @@ h2 {
     border: none;
 }
 
-/* Image carousel */
-.modal-carousel {
-    display: flex;
-    gap: 0.5rem;
-    padding: 0.75rem 1rem;
-    background: var(--bg-dark);
-    overflow-x: auto;
-    justify-content: center;
+/* Details card */
+.modal-card-details {
+    padding: 1rem;
 }
 
-.modal-carousel::-webkit-scrollbar {
-    height: 4px;
-}
-
-.modal-carousel::-webkit-scrollbar-thumb {
-    background: var(--border);
-    border-radius: 2px;
-}
-
-.carousel-thumb {
-    flex-shrink: 0;
-    width: 60px;
-    height: 40px;
-    border-radius: 4px;
-    overflow: hidden;
-    cursor: pointer;
-    opacity: 0.5;
-    border: 2px solid transparent;
-    transition: all var(--transition);
-}
-
-.carousel-thumb:hover {
-    opacity: 0.8;
-}
-
-.carousel-thumb.active {
-    opacity: 1;
-    border-color: var(--accent);
-}
-
-.carousel-thumb img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-
-/* Modal details section */
-.modal-details {
-    padding: 1rem 1.25rem;
-}
-
-.modal-details h3 {
+.modal-card-details h3 {
     font-size: 1rem;
     font-weight: 500;
-    margin-bottom: 0.6rem;
-    padding-bottom: 0.6rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--border);
     letter-spacing: 0.02em;
 }
@@ -580,8 +550,8 @@ h2 {
     font-size: 0.75rem;
     line-height: 1.5;
     color: var(--text-secondary);
-    margin-bottom: 0.75rem;
-    padding-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
+    padding-bottom: 0.5rem;
     border-bottom: 1px solid var(--border);
 }
 
@@ -629,8 +599,24 @@ h2 {
     color: var(--accent);
 }
 
+/* Additional image cards */
+.modal-card-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Image caption within card */
+.image-caption {
+    padding: 0.75rem 1rem;
+    font-size: 0.75rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+    border-top: 1px solid var(--border);
+}
+
 .modal-close {
-    position: absolute;
+    position: fixed;
     top: 2rem;
     right: 2rem;
     background: none;
@@ -645,7 +631,7 @@ h2 {
     justify-content: center;
     opacity: 0.6;
     transition: opacity var(--transition);
-    z-index: 10;
+    z-index: 1001;
 }
 
 .modal-close:hover {
@@ -653,7 +639,7 @@ h2 {
 }
 
 .modal-nav {
-    position: absolute;
+    position: fixed;
     top: 50%;
     transform: translateY(-50%);
     background: rgba(255, 255, 255, 0.1);
@@ -669,6 +655,7 @@ h2 {
     cursor: pointer;
     opacity: 0.6;
     transition: all var(--transition);
+    z-index: 1001;
 }
 
 .modal-nav:hover {
@@ -700,7 +687,6 @@ h2 {
 
     .grid {
         column-count: 2;
-        column-gap: 1rem;
     }
 
     .modal-nav {

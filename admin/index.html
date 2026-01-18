@@ -201,6 +201,18 @@
 
         <div id="buildStatus" class="build-status"></div>
 
+        <!-- Caption edit modal -->
+        <div id="captionModal" class="caption-modal">
+            <div class="caption-modal-content">
+                <h3>Image Caption</h3>
+                <textarea id="captionText" placeholder="Add a caption for this image..."></textarea>
+                <div class="caption-modal-actions">
+                    <button type="button" class="btn btn-secondary" id="captionCancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="captionSave">Save</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Shared modules (loaded first) -->
         <script src="../shared/utils.js"></script>
         <script src="../shared/config.js"></script>

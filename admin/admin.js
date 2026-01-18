@@ -11,9 +11,10 @@ let csrfToken = null;
 let works = [];
 let currentWork = null;
 let isEditMode = false;
-let currentImages = [];
-let pendingFiles = [];
-let allImages = [];
+let currentImages = []; // Array of {src, caption} objects for existing images
+let pendingFiles = []; // Array of {file, caption} objects for new uploads
+let allImages = []; // Combined array for display
+let editingCaptionIndex = null; // Track which image caption is being edited
 
 // DOM Elements
 const elements = {
@@ -155,6 +156,7 @@ document.addEventListener("DOMContentLoaded", async () => {
   await fetchCsrfToken();
 
   initializeEventListeners();
+  initializeCaptionModal();
   loadWorks();
   loadLastBuildTime();
 });
@@ -210,11 +212,16 @@ function saveLastBuildTime() {
 // Image Management
 function buildAllImages() {
   allImages = [];
-  currentImages.forEach((src) => {
-    allImages.push({ type: "existing", src });
+  currentImages.forEach((imgData) => {
+    allImages.push({ type: "existing", src: imgData.src, caption: imgData.caption || "" });
   });
-  pendingFiles.forEach((file) => {
-    allImages.push({ type: "pending", src: URL.createObjectURL(file), file });
+  pendingFiles.forEach((pendingData) => {
+    allImages.push({
+      type: "pending",
+      src: URL.createObjectURL(pendingData.file),
+      file: pendingData.file,
+      caption: pendingData.caption || ""
+    });
   });
 }
 
@@ -224,9 +231,11 @@ function renderImagesGrid() {
   let html = "";
 
   allImages.forEach((img, index) => {
+    const hasCaptionClass = img.caption ? "has-caption" : "";
     html += `
       <div class="image-preview-item" draggable="true" data-index="${index}">
         <img src="${img.src}" alt="Image ${index + 1}">
+        <button class="caption-btn ${hasCaptionClass}" data-index="${index}" type="button" title="Edit caption">✎</button>
         <button class="remove-image" data-index="${index}" type="button">×</button>
         <div class="image-order">${index + 1}</div>
       </div>
@@ -248,17 +257,61 @@ function renderImagesGrid() {
 
 function handleFileSelect(event) {
   const files = Array.from(event.target.files);
-  pendingFiles = [...pendingFiles, ...files];
+  // Wrap each file in an object with caption
+  const newPendingFiles = files.map(file => ({ file, caption: "" }));
+  pendingFiles = [...pendingFiles, ...newPendingFiles];
+  renderImagesGrid();
+}
+
+// Caption editing
+function openCaptionEditor(index) {
+  editingCaptionIndex = index;
+  const img = allImages[index];
+  const captionText = document.getElementById("captionText");
+  const captionModal = document.getElementById("captionModal");
+
+  captionText.value = img.caption || "";
+  captionModal.classList.add("active");
+  captionText.focus();
+}
+
+function closeCaptionEditor() {
+  editingCaptionIndex = null;
+  document.getElementById("captionModal").classList.remove("active");
+  document.getElementById("captionText").value = "";
+}
+
+function saveCaptionEditor() {
+  if (editingCaptionIndex === null) return;
+
+  const caption = document.getElementById("captionText").value.trim();
+  const img = allImages[editingCaptionIndex];
+
+  if (img.type === "existing") {
+    // Find and update in currentImages
+    const existingIndex = currentImages.findIndex(ci => ci.src === img.src);
+    if (existingIndex > -1) {
+      currentImages[existingIndex].caption = caption;
+    }
+  } else {
+    // Find and update in pendingFiles
+    const pendingIndex = pendingFiles.findIndex(pf => pf.file === img.file);
+    if (pendingIndex > -1) {
+      pendingFiles[pendingIndex].caption = caption;
+    }
+  }
+
+  closeCaptionEditor();
   renderImagesGrid();
 }
 
 function removeImage(index) {
   const img = allImages[index];
   if (img.type === "existing") {
-    const existingIndex = currentImages.indexOf(img.src);
+    const existingIndex = currentImages.findIndex(ci => ci.src === img.src);
     if (existingIndex > -1) currentImages.splice(existingIndex, 1);
   } else {
-    const pendingIndex = pendingFiles.indexOf(img.file);
+    const pendingIndex = pendingFiles.findIndex(pf => pf.file === img.file);
     if (pendingIndex > -1) pendingFiles.splice(pendingIndex, 1);
   }
   renderImagesGrid();
@@ -272,9 +325,9 @@ function reorderImages(fromIndex, toIndex) {
   pendingFiles = [];
   allImages.forEach((img) => {
     if (img.type === "existing") {
-      currentImages.push(img.src);
+      currentImages.push({ src: img.src, caption: img.caption || "" });
     } else {
-      pendingFiles.push(img.file);
+      pendingFiles.push({ file: img.file, caption: img.caption || "" });
     }
   });
 
@@ -339,6 +392,33 @@ function initializeDragAndDrop() {
     if (e.target.classList.contains("remove-image")) {
       const index = parseInt(e.target.dataset.index);
       removeImage(index);
+    }
+    if (e.target.classList.contains("caption-btn")) {
+      const index = parseInt(e.target.dataset.index);
+      openCaptionEditor(index);
+    }
+  });
+}
+
+// Initialize caption modal event listeners
+function initializeCaptionModal() {
+  document.getElementById("captionCancel").addEventListener("click", closeCaptionEditor);
+  document.getElementById("captionSave").addEventListener("click", saveCaptionEditor);
+
+  // Close on background click
+  document.getElementById("captionModal").addEventListener("click", (e) => {
+    if (e.target.id === "captionModal") {
+      closeCaptionEditor();
+    }
+  });
+
+  // Save on Enter (with Ctrl/Cmd), close on Escape
+  document.getElementById("captionText").addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      closeCaptionEditor();
+    }
+    if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) {
+      saveCaptionEditor();
     }
   });
 }
@@ -568,8 +648,14 @@ function populateForm(work) {
     work.videoId || "";
 
   // Use absolute paths from unified server
+  // Handle both string and object formats for images
   if (work.images && work.images.length > 0) {
-    currentImages = work.images.map((img) => `/${img}`);
+    currentImages = work.images.map((img) => {
+      if (typeof img === 'string') {
+        return { src: `/${img}`, caption: "" };
+      }
+      return { src: `/${img.src}`, caption: img.caption || "" };
+    });
   } else {
     currentImages = [];
   }
@@ -600,9 +686,21 @@ async function handleFormSubmit(event) {
     const formData = new FormData(elements.workForm);
     formData.delete("images");
 
-    pendingFiles.forEach((file) => {
-      formData.append("images", file);
+    // Send existing images with captions as JSON
+    const existingImagesData = currentImages.map(img => ({
+      src: img.src.replace(/^\//, ''), // Remove leading slash
+      caption: img.caption || ""
+    }));
+    formData.append("existingImages", JSON.stringify(existingImagesData));
+
+    // Send pending files
+    pendingFiles.forEach((pendingData) => {
+      formData.append("images", pendingData.file);
     });
+
+    // Send captions for pending files as JSON array
+    const pendingCaptions = pendingFiles.map(pf => pf.caption || "");
+    formData.append("pendingCaptions", JSON.stringify(pendingCaptions));
 
     let url = "/works";
     let method = "POST";

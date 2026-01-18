@@ -104,7 +104,7 @@ function parseFeatured(value, defaultValue = false) {
   return value === "true" || value === "on" || value === true;
 }
 
-async function processImageUploads(files, destinationPath, startIndex = 0) {
+async function processImageUploads(files, destinationPath, captions = [], startIndex = 0) {
   const images = [];
 
   if (!files || files.length === 0) return images;
@@ -120,7 +120,13 @@ async function processImageUploads(files, destinationPath, startIndex = 0) {
     await fs.copyFile(file.path, destPath);
     await fs.unlink(file.path);
 
-    images.push(imageName);
+    // Include caption if provided
+    const caption = captions[i] || "";
+    if (caption) {
+      images.push({ src: imageName, caption });
+    } else {
+      images.push(imageName);
+    }
   }
 
   return images;
@@ -219,6 +225,7 @@ app.post(
         type,
         videoId,
         featured,
+        pendingCaptions,
       } = req.body;
 
       if (!title || !date) {
@@ -234,7 +241,9 @@ app.post(
       await fs.mkdir(projectPath, { recursive: true });
       console.log(`Created directory: ${projectPath}`);
 
-      const images = await processImageUploads(req.files, projectPath);
+      // Parse captions for new uploads
+      const captions = pendingCaptions ? JSON.parse(pendingCaptions) : [];
+      const images = await processImageUploads(req.files, projectPath, captions);
       console.log(`Saved ${images.length} images`);
 
       const meta = buildMetaData({
@@ -294,6 +303,8 @@ app.put(
         type,
         videoId,
         featured,
+        existingImages,
+        pendingCaptions,
       } = req.body;
 
       const works = await getWorks();
@@ -330,10 +341,26 @@ app.put(
         console.log("No existing meta.json found, creating new one");
       }
 
-      let images = existingMeta.images || [];
+      // Parse existing images with captions from client
+      let images = [];
+      if (existingImages) {
+        const parsedExisting = JSON.parse(existingImages);
+        images = parsedExisting.map(img => {
+          // Extract just the filename from the path
+          const filename = img.src.split('/').pop();
+          if (img.caption) {
+            return { src: filename, caption: img.caption };
+          }
+          return filename;
+        });
+      }
+
+      // Process new uploads with their captions
+      const captions = pendingCaptions ? JSON.parse(pendingCaptions) : [];
       const newImages = await processImageUploads(
         req.files,
         newPath,
+        captions,
         images.length,
       );
       images = [...images, ...newImages];

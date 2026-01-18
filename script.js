@@ -3,6 +3,7 @@ let allWorks = [];
 let currentFilters = {};
 let currentWorkIndex = 0;
 let filteredWorks = [];
+let modalWorksList = []; // The list of works being navigated in modal (filtered or all)
 
 // Wait for shared modules to load, with fallback
 function getUtils() {
@@ -105,6 +106,8 @@ function applyURLState() {
   const state = parseURL();
 
   if (state.type === "work") {
+    // Opening from URL navigates through all works
+    modalWorksList = allWorks;
     setTimeout(() => openModal(state.index), 100);
   } else {
     if (Object.keys(state.filters).length > 0) {
@@ -188,10 +191,9 @@ function renderTable() {
 
   table.innerHTML = "";
 
-  filteredWorks.forEach((work) => {
+  filteredWorks.forEach((work, filteredIndex) => {
     const row = document.createElement("div");
     row.className = "table-row";
-    const globalIndex = allWorks.indexOf(work);
 
     row.innerHTML = `
       <div class="col-year">${work.date}</div>
@@ -203,9 +205,10 @@ function renderTable() {
     `;
 
     // Add click handler for the row, but not for filter bubbles
+    // Use filteredIndex and flag to navigate through filtered works
     row.addEventListener("click", (e) => {
       if (!e.target.classList.contains("filter-value")) {
-        openModal(globalIndex);
+        openModal(filteredIndex, true);
       }
     });
 
@@ -224,6 +227,12 @@ function renderTable() {
 }
 
 // Render portfolio section
+// Helper to get image src (handles both string and object formats)
+function getImageSrc(img) {
+  if (typeof img === 'string') return img;
+  return img.src || '';
+}
+
 function renderPortfolio() {
   const grid = document.getElementById("portfolioGrid");
   grid.innerHTML = "";
@@ -232,16 +241,13 @@ function renderPortfolio() {
   const { getMultiValues } = getUtils();
   const config = getConfig();
 
-  portfolioWorks.forEach((work) => {
+  portfolioWorks.forEach((work, portfolioIndex) => {
     const item = document.createElement("div");
     item.className = "grid-item";
-    const globalIndex = allWorks.indexOf(work);
 
-    // Use images array (standardized)
-    const displayImage =
-      work.images && work.images.length > 0
-        ? work.images[0]
-        : work.thumbnail || "";
+    // Use images array (standardized), handle object format
+    const firstImage = work.images && work.images.length > 0 ? work.images[0] : null;
+    const displayImage = firstImage ? getImageSrc(firstImage) : (work.thumbnail || "");
 
     // Build meta tags for hover panel
     const buildMetaTags = (key, value) => {
@@ -280,73 +286,42 @@ function renderPortfolio() {
       `;
     }
 
-    item.addEventListener("click", () => openModal(globalIndex));
+    // Navigate through featured works only when opened from portfolio
+    item.addEventListener("click", () => {
+      modalWorksList = portfolioWorks;
+      openModal(portfolioIndex);
+    });
     grid.appendChild(item);
   });
 }
 
-// Track current image in carousel
-let currentImageIndex = 0;
-
 // Open modal with work details
-function openModal(index) {
-  currentWorkIndex = index;
-  currentImageIndex = 0;
-  const work = allWorks[index];
+// If fromFilteredList is true, navigation will use filteredWorks
+function openModal(index, fromFilteredList = false) {
+  // Determine which list to use for navigation
+  if (fromFilteredList && Object.keys(currentFilters).length > 0) {
+    modalWorksList = filteredWorks;
+    currentWorkIndex = index;
+  } else if (modalWorksList.length === 0 || !fromFilteredList) {
+    // Default to allWorks if no list set or explicitly not from filtered
+    modalWorksList = allWorks;
+    currentWorkIndex = index;
+  }
+
+  const work = modalWorksList[currentWorkIndex];
+  if (!work) return;
+
   const modal = document.getElementById("modal");
-  const modalMedia = document.getElementById("modalMedia");
-  const modalCarousel = document.getElementById("modalCarousel");
-  const modalTitle = document.getElementById("modalTitle");
-  const modalDescription = document.getElementById("modalDescription");
-  const modalTags = document.getElementById("modalTags");
+  const container = document.getElementById("modalScrollContainer");
 
   const { slugify, getMultiValues } = getUtils();
   const config = getConfig();
-
-  modalTitle.textContent = work.title;
 
   // Update URL with work slug
   const slug = slugify(work.title);
   updateURL({ work: slug });
 
-  // Display info text if available
-  if (work.info && work.info.trim()) {
-    modalDescription.textContent = work.info;
-    modalDescription.style.display = "block";
-  } else {
-    modalDescription.style.display = "none";
-  }
-
-  // Handle media display
-  if (work.type === "video") {
-    modalMedia.innerHTML = `<iframe src="https://www.youtube.com/embed/${work.videoId}" allowfullscreen></iframe>`;
-    modalCarousel.innerHTML = "";
-    modalCarousel.style.display = "none";
-  } else {
-    const displayImage = work.images && work.images.length > 0 ? work.images[0] : "";
-    modalMedia.innerHTML = `<img src="${displayImage}" alt="${work.title}" id="modalMainImage">`;
-
-    // Build carousel if multiple images
-    if (work.images && work.images.length > 1) {
-      modalCarousel.style.display = "flex";
-      modalCarousel.innerHTML = work.images
-        .map((img, i) => `<div class="carousel-thumb ${i === 0 ? 'active' : ''}" data-index="${i}"><img src="${img}" alt=""></div>`)
-        .join("");
-
-      // Add click handlers for thumbnails
-      modalCarousel.querySelectorAll(".carousel-thumb").forEach((thumb) => {
-        thumb.addEventListener("click", () => {
-          const imgIndex = parseInt(thumb.dataset.index);
-          setCarouselImage(imgIndex);
-        });
-      });
-    } else {
-      modalCarousel.innerHTML = "";
-      modalCarousel.style.display = "none";
-    }
-  }
-
-  // Build meta tags
+  // Build meta tags HTML
   const buildMetaItem = (label, key, value) => {
     const values = getMultiValues(value);
     if (values.length === 0) return "";
@@ -356,41 +331,91 @@ function openModal(index) {
     return `<div class="meta-item"><span class="meta-label">${label}</span>${valueSpans}</div>`;
   };
 
-  modalTags.innerHTML =
+  const metaHTML =
     buildMetaItem(config.fieldLabels.client, "client", work.client) +
     buildMetaItem(config.fieldLabels.contribution, "contribution", work.contribution) +
     `<div class="meta-item"><span class="meta-label">${config.fieldLabels.date}</span><span class="meta-value" onclick="addFilter('date', '${work.date}')">${work.date}</span></div>` +
     buildMetaItem(config.fieldLabels.style, "style", work.style) +
     buildMetaItem(config.fieldLabels.software, "software", work.software);
 
-  modal.classList.add("active");
-  document.body.style.overflow = "hidden";
-}
+  // Build description HTML
+  const descriptionHTML = work.info && work.info.trim()
+    ? `<p class="modal-description">${work.info}</p>`
+    : "";
 
-// Set carousel image
-function setCarouselImage(index) {
-  const work = allWorks[currentWorkIndex];
-  if (!work.images || index >= work.images.length) return;
+  // Helper to get image src and caption (supports both string and object formats)
+  const getImageData = (img) => {
+    if (typeof img === 'string') {
+      return { src: img, caption: null };
+    }
+    return { src: img.src, caption: img.caption || null };
+  };
 
-  currentImageIndex = index;
-  const mainImage = document.getElementById("modalMainImage");
-  if (mainImage) {
-    mainImage.src = work.images[index];
+  let contentHTML = "";
+
+  if (work.type === "video") {
+    // Video: single media card + details
+    contentHTML = `
+      <div class="modal-card modal-card-media">
+        <div class="modal-media">
+          <iframe src="https://www.youtube.com/embed/${work.videoId}" allowfullscreen></iframe>
+        </div>
+      </div>
+      <div class="modal-card modal-card-details">
+        <h3>${work.title}</h3>
+        ${descriptionHTML}
+        <div class="modal-meta">${metaHTML}</div>
+      </div>
+    `;
+  } else {
+    // Image work: first image card
+    const images = work.images && work.images.length > 0 ? work.images : [];
+    const firstImg = images[0] ? getImageData(images[0]) : { src: "", caption: null };
+
+    contentHTML = `
+      <div class="modal-card modal-card-media">
+        <div class="modal-media">
+          <img src="${firstImg.src}" alt="${work.title}">
+        </div>
+        ${firstImg.caption ? `<div class="image-caption">${firstImg.caption}</div>` : ""}
+      </div>
+      <div class="modal-card modal-card-details">
+        <h3>${work.title}</h3>
+        ${descriptionHTML}
+        <div class="modal-meta">${metaHTML}</div>
+      </div>
+    `;
+
+    // Add additional image cards (starting from index 1)
+    if (images.length > 1) {
+      for (let i = 1; i < images.length; i++) {
+        const imgData = getImageData(images[i]);
+        contentHTML += `
+          <div class="modal-card modal-card-image">
+            <img src="${imgData.src}" alt="${work.title} - Image ${i + 1}">
+            ${imgData.caption ? `<div class="image-caption">${imgData.caption}</div>` : ""}
+          </div>
+        `;
+      }
+    }
   }
 
-  // Update active thumbnail
-  document.querySelectorAll(".carousel-thumb").forEach((thumb, i) => {
-    thumb.classList.toggle("active", i === index);
-  });
+  container.innerHTML = contentHTML;
+
+  modal.classList.add("active");
+  document.body.style.overflow = "hidden";
+
+  // Scroll modal to top
+  modal.scrollTop = 0;
 }
 
 // Close modal
 function closeModal() {
   const modal = document.getElementById("modal");
-  const modalMedia = document.getElementById("modalMedia");
+  const container = document.getElementById("modalScrollContainer");
 
   // Stop any playing video by clearing the iframe
-  const iframe = modalMedia.querySelector("iframe");
+  const iframe = container.querySelector("iframe");
   if (iframe) {
     iframe.src = "";
   }
@@ -402,13 +427,15 @@ function closeModal() {
 
 // Navigate to previous work
 function prevWork() {
-  currentWorkIndex = (currentWorkIndex - 1 + allWorks.length) % allWorks.length;
+  if (modalWorksList.length === 0) modalWorksList = allWorks;
+  currentWorkIndex = (currentWorkIndex - 1 + modalWorksList.length) % modalWorksList.length;
   openModal(currentWorkIndex);
 }
 
 // Navigate to next work
 function nextWork() {
-  currentWorkIndex = (currentWorkIndex + 1) % allWorks.length;
+  if (modalWorksList.length === 0) modalWorksList = allWorks;
+  currentWorkIndex = (currentWorkIndex + 1) % modalWorksList.length;
   openModal(currentWorkIndex);
 }
 
@@ -493,6 +520,7 @@ function switchSection(sectionId) {
 
 // Go to random work
 function goToRandom() {
+  modalWorksList = allWorks;
   const randomIndex = Math.floor(Math.random() * allWorks.length);
   openModal(randomIndex);
 }

@@ -10,12 +10,36 @@ const { extractYouTubeId, getYouTubeThumbnail } = require("./utils");
 const CONFIG = require("./config");
 
 /**
+ * Get image src from image entry (handles both string and object formats)
+ * @param {string|Object} img - Image entry (string filename or {src, caption} object)
+ * @returns {string} Image filename
+ */
+function getImageSrc(img) {
+  if (typeof img === 'string') {
+    return img;
+  }
+  return img.src || '';
+}
+
+/**
+ * Get image caption from image entry
+ * @param {string|Object} img - Image entry (string filename or {src, caption} object)
+ * @returns {string|null} Caption or null
+ */
+function getImageCaption(img) {
+  if (typeof img === 'object' && img.caption) {
+    return img.caption;
+  }
+  return null;
+}
+
+/**
  * Get images from a project directory
  * @param {string} projectPath - Path to project folder
- * @param {string[]} metaImages - Array of image filenames from meta.json
+ * @param {Array} metaImages - Array of image entries from meta.json (strings or objects)
  * @param {string} parentFolder - Parent folder name (year or client)
  * @param {string} folderName - Project folder name
- * @returns {string[]} Array of relative image paths
+ * @returns {Array} Array of image entries with full paths
  */
 function getImagesFromProject(projectPath, metaImages, parentFolder, folderName) {
   const images = [];
@@ -25,9 +49,16 @@ function getImagesFromProject(projectPath, metaImages, parentFolder, folderName)
   }
 
   for (const img of metaImages) {
-    const imgPath = path.join(projectPath, img);
+    const imgSrc = getImageSrc(img);
+    const imgPath = path.join(projectPath, imgSrc);
     if (fs.existsSync(imgPath)) {
-      images.push(`works/${parentFolder}/${folderName}/${img}`);
+      const fullPath = `works/${parentFolder}/${folderName}/${imgSrc}`;
+      const caption = getImageCaption(img);
+      if (caption) {
+        images.push({ src: fullPath, caption });
+      } else {
+        images.push(fullPath);
+      }
     }
   }
 
@@ -199,17 +230,26 @@ async function scanAllWorksAsync(worksDir) {
               year = yearMatch ? yearMatch[1] : "unknown";
             }
 
-            // Build image paths
+            // Build image paths (handles both string and object formats)
             const images = meta.images && Array.isArray(meta.images)
-              ? meta.images.map(img => `works/${entry.name}/${projectFolder.name}/${img}`)
+              ? meta.images.map(img => {
+                  const imgSrc = getImageSrc(img);
+                  const fullPath = `works/${entry.name}/${projectFolder.name}/${imgSrc}`;
+                  const caption = getImageCaption(img);
+                  if (caption) {
+                    return { src: fullPath, caption };
+                  }
+                  return fullPath;
+                })
               : [];
 
-            // Build thumbnail for videos
+            // Build thumbnail for videos (get first image src)
             let thumbnail = "";
             if (meta.type === "video" && meta.videoId) {
               const videoId = extractYouTubeId(meta.videoId);
               if (images.length > 0) {
-                thumbnail = images[0];
+                const firstImg = images[0];
+                thumbnail = typeof firstImg === 'string' ? firstImg : firstImg.src;
               } else {
                 thumbnail = getYouTubeThumbnail(videoId);
               }

@@ -1,116 +1,8 @@
 Portfolio server running on http://localhost:3000
 Admin interface: http://localhost:3000/admin
 Works directory: /Users/joseph/Documents/Web/works
-Deleted folder: /Users/joseph/Documents/Web/works/2024/how-to-train-your-dragon-copy
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 15 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 15
-
-Created directory: /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles-copy
-Saved 0 images
-Created meta.json at /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles-copy/meta.json
-Deleted folder: /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles-copy
-Created directory: /Users/joseph/Documents/Web/works/2022/blocklords-slay-the-bear-copy
-Saved 0 images
-Created meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-slay-the-bear-copy/meta.json
-Renamed folder from /Users/joseph/Documents/Web/works/2022/blocklords-slay-the-bear-copy to /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 16 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 16
-
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 16 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 16
-
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 16 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 16
-
-Created directory: /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles-copy
-Saved 0 images
-Created meta.json at /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles-copy/meta.json
-Renamed folder from /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles-copy to /Users/joseph/Documents/Web/works/2021/double-double-cross
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/double-double-cross/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/double-double-cross/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/double-double-cross/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 17 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 17
-
 Updated meta.json at /Users/joseph/Documents/Web/works/2023/foliage-study/meta.json
 Updated meta.json at /Users/joseph/Documents/Web/works/2023/jar-a/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/lava-lamp/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/skull/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2025/take-me-higher/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2025/take-me-higher/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/fly-me-to-the-moon/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/blue/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 17 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 17
-
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-slay-the-bear/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 17 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 17
-
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 17 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 17
-
-Renamed folder from /Users/joseph/Documents/Web/works/2020/love-death-robots to /Users/joseph/Documents/Web/works/2020/love-death-robots-the-tall-grass
-Updated meta.json at /Users/joseph/Documents/Web/works/2020/love-death-robots-the-tall-grass/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 17 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 17
-
-Created directory: /Users/joseph/Documents/Web/works/2024/how-to-train-your-dragon-copy
-Saved 0 images
-Created meta.json at /Users/joseph/Documents/Web/works/2024/how-to-train-your-dragon-copy/meta.json
-Renamed folder from /Users/joseph/Documents/Web/works/2024/how-to-train-your-dragon-copy to /Users/joseph/Documents/Web/works/2024/wonka
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/wonka/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/wonka/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/wonka/meta.json
 Running build script...
 Build completed successfully
 stdout: Scanning for projects...
@@ -119,61 +11,24 @@ Found 18 projects
 Data written to /Users/joseph/Documents/Web/data.json
 Total projects: 18
 
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/wonka/meta.json
+Created directory: /Users/joseph/Documents/Web/works/2024/product-re-release
+Saved 1 images
+Created meta.json at /Users/joseph/Documents/Web/works/2024/product-re-release/meta.json
+Updated meta.json at /Users/joseph/Documents/Web/works/2024/product-re-release/meta.json
 Running build script...
 Build completed successfully
 stdout: Scanning for projects...
-Found 18 projects
+Found 19 projects
 
 Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 18
+Total projects: 19
 
-Updated meta.json at /Users/joseph/Documents/Web/works/2025/wicked-for-good/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2025/take-me-higher/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/wonka/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/skull/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/skull/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/prehistoric-planet-ice-age/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/prehistoric-planet-ice-age/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/how-to-train-your-dragon/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/lava-lamp/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/lava-lamp/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/jar-a/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/foliage-study/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/fly-me-to-the-moon/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/blue/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/ascending-into-the-clouds/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/love-death-robots/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/love-death-robots/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-slay-the-bear/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/double-double-cross/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/double-double-cross/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2020/love-death-robots-the-tall-grass/meta.json
+Updated meta.json at /Users/joseph/Documents/Web/works/2024/product-re-release/meta.json
 Running build script...
 Build completed successfully
 stdout: Scanning for projects...
-Found 18 projects
+Found 19 projects
 
 Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 18
-
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-slay-the-bear/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/blocklords-protect-your-house/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/double-double-cross/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2021/dont-mess-with-yordles/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2020/love-death-robots-the-tall-grass/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2022/love-death-robots/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/fly-me-to-the-moon/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/wonka/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 18 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 18
+Total projects: 19
 

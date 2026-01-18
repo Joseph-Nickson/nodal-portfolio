@@ -448,8 +448,92 @@ textarea {
     transition: opacity 0.2s;
 }
 
-.image-preview-item:hover .remove-image {
+.image-preview-item .caption-btn {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 20px;
+    height: 20px;
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.image-preview-item .caption-btn.has-caption {
+    background: var(--success);
+    color: white;
+    border-color: var(--success);
     opacity: 1;
+}
+
+.image-preview-item:hover .remove-image,
+.image-preview-item:hover .caption-btn {
+    opacity: 1;
+}
+
+/* Caption edit modal */
+.caption-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.85);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+}
+
+.caption-modal.active {
+    display: flex;
+}
+
+.caption-modal-content {
+    background: var(--bg-secondary);
+    border-radius: 6px;
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid var(--border);
+    padding: 1rem;
+}
+
+.caption-modal-content h3 {
+    font-size: 0.9rem;
+    margin-bottom: 0.75rem;
+    font-weight: 500;
+}
+
+.caption-modal-content textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    resize: vertical;
+    margin-bottom: 0.75rem;
+}
+
+.caption-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.caption-modal-actions .btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.8rem;
 }
 
 .image-preview-item .image-order {

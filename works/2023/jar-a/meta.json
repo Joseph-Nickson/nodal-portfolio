@@ -11,6 +11,9 @@
   "featured": true,
   "images": [
     "image.jpg",
-    "image2.jpg"
+    {
+      "src": "image2.jpg",
+      "caption": "TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw"
+    }
   ]
 }
