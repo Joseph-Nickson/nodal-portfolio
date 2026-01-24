@@ -6,32 +6,12 @@
 const fs = require("fs");
 const fsPromises = require("fs").promises;
 const path = require("path");
-const { extractYouTubeId, getYouTubeThumbnail } = require("./utils");
-const CONFIG = require("./config");
-
-/**
- * Get image src from image entry (handles both string and object formats)
- * @param {string|Object} img - Image entry (string filename or {src, caption} object)
- * @returns {string} Image filename
- */
-function getImageSrc(img) {
-  if (typeof img === 'string') {
-    return img;
-  }
-  return img.src || '';
-}
-
-/**
- * Get image caption from image entry
- * @param {string|Object} img - Image entry (string filename or {src, caption} object)
- * @returns {string|null} Caption or null
- */
-function getImageCaption(img) {
-  if (typeof img === 'object' && img.caption) {
-    return img.caption;
-  }
-  return null;
-}
+const {
+  extractYouTubeId,
+  getYouTubeThumbnail,
+  getImageSrc,
+  getImageCaption,
+} = require("./utils");
 
 /**
  * Get images from a project directory
@@ -138,6 +118,119 @@ function getAllProjects(worksDir) {
 }
 
 /**
+ * Convert legacy meta format to new content format
+ * @param {Object} meta - Meta object from meta.json
+ * @param {string} projectPath - Path to project folder
+ * @param {string} parentFolder - Parent folder name
+ * @param {string} folderName - Project folder name
+ * @returns {Array} Content array in new format
+ */
+function convertLegacyToContent(meta, projectPath, parentFolder, folderName) {
+  const content = [];
+
+  // Add video first if it's a video type
+  if (meta.type === "video" && meta.videoId) {
+    const videoId = extractYouTubeId(meta.videoId);
+    if (videoId) {
+      content.push({ type: "video", videoId: videoId });
+    }
+  }
+
+  // Add images
+  if (meta.images && Array.isArray(meta.images)) {
+    for (const img of meta.images) {
+      const imgSrc = getImageSrc(img);
+      const imgPath = path.join(projectPath, imgSrc);
+      if (fs.existsSync(imgPath)) {
+        const fullPath = `works/${parentFolder}/${folderName}/${imgSrc}`;
+        const caption = getImageCaption(img);
+        const imageItem = { type: "image", src: fullPath };
+        if (caption) imageItem.caption = caption;
+        content.push(imageItem);
+      }
+    }
+  }
+
+  // Add info as text block
+  if (meta.info && meta.info.trim()) {
+    content.push({ type: "text", text: meta.info.trim() });
+  }
+
+  return content;
+}
+
+/**
+ * Build content array with full paths
+ * @param {Array} content - Content array from meta.json
+ * @param {string} projectPath - Path to project folder
+ * @param {string} parentFolder - Parent folder name
+ * @param {string} folderName - Project folder name
+ * @returns {Array} Content array with full paths
+ */
+function buildContentPaths(content, projectPath, parentFolder, folderName) {
+  return content.map(item => {
+    if (item.type === "image") {
+      const imgPath = path.join(projectPath, item.src);
+      if (fs.existsSync(imgPath)) {
+        const fullPath = `works/${parentFolder}/${folderName}/${item.src}`;
+        const newItem = { type: "image", src: fullPath };
+        if (item.caption) newItem.caption = item.caption;
+        return newItem;
+      }
+      return null;
+    }
+    return item;
+  }).filter(Boolean);
+}
+
+/**
+ * Build content array from meta.json (new format or legacy conversion)
+ * @param {Object} meta - Meta object from meta.json
+ * @param {string} projectPath - Path to project folder
+ * @param {string} parentFolder - Parent folder name
+ * @param {string} folderName - Project folder name
+ * @returns {Array} Content array with full paths
+ */
+function buildContentFromMeta(meta, projectPath, parentFolder, folderName) {
+  if (meta.content && Array.isArray(meta.content)) {
+    return buildContentPaths(meta.content, projectPath, parentFolder, folderName);
+  }
+
+  return convertLegacyToContent(meta, projectPath, parentFolder, folderName);
+}
+
+/**
+ * Build legacy fields from content array for backwards compatibility
+ * @param {Array} content - Content array
+ * @returns {Object} Legacy fields
+ */
+function buildLegacyFields(content) {
+  let type = "image";
+  let images = [];
+  let info = "";
+  let videoId = "";
+  let thumbnail = "";
+
+  for (const item of content) {
+    if (item.type === "video" && !videoId) {
+      type = "video";
+      videoId = item.videoId;
+      thumbnail = getYouTubeThumbnail(item.videoId);
+    } else if (item.type === "image") {
+      if (item.caption) {
+        images.push({ src: item.src, caption: item.caption });
+      } else {
+        images.push(item.src);
+      }
+    } else if (item.type === "text" && !info) {
+      info = item.text;
+    }
+  }
+
+  return { type, images, info, videoId, thumbnail };
+}
+
+/**
  * Build project data from meta.json (sync version)
  * @param {Object} project - Project info object
  * @returns {Object|null} Project data object or null if error
@@ -150,39 +243,25 @@ function buildProjectData(project) {
     const data = {
       id: `${project.parentFolder}-${project.folderName}`,
       title: meta.title || "",
-      type: meta.type || "image",
       client: meta.client || "",
       industry: meta.industry || "",
       contribution: meta.contribution || "",
       date: meta.date || "",
       style: meta.style || "",
       software: meta.software || "",
-      info: meta.info || "",
       featured: meta.featured || false,
     };
 
-    // Get images
-    const images = getImagesFromProject(
+    // Handle content - new format or legacy conversion
+    data.content = buildContentFromMeta(
+      meta,
       project.path,
-      meta.images,
       project.parentFolder,
       project.folderName
     );
-    data.images = images;
 
-    if (meta.type === "video") {
-      const videoId = extractYouTubeId(meta.videoId) || extractYouTubeId(meta.video);
-      data.videoId = videoId;
-
-      // Use first image as thumbnail, or YouTube thumbnail as fallback
-      if (images.length > 0) {
-        data.thumbnail = images[0];
-      } else if (videoId) {
-        data.thumbnail = getYouTubeThumbnail(videoId);
-      } else {
-        data.thumbnail = "";
-      }
-    }
+    // Generate legacy fields for backwards compatibility
+    Object.assign(data, buildLegacyFields(data.content));
 
     return data;
   } catch (error) {
@@ -230,45 +309,32 @@ async function scanAllWorksAsync(worksDir) {
               year = yearMatch ? yearMatch[1] : "unknown";
             }
 
-            // Build image paths (handles both string and object formats)
-            const images = meta.images && Array.isArray(meta.images)
-              ? meta.images.map(img => {
-                  const imgSrc = getImageSrc(img);
-                  const fullPath = `works/${entry.name}/${projectFolder.name}/${imgSrc}`;
-                  const caption = getImageCaption(img);
-                  if (caption) {
-                    return { src: fullPath, caption };
-                  }
-                  return fullPath;
-                })
-              : [];
+            // Handle content - new format or legacy conversion
+            const content = buildContentFromMeta(
+              meta,
+              projectPath,
+              entry.name,
+              projectFolder.name
+            );
 
-            // Build thumbnail for videos (get first image src)
-            let thumbnail = "";
-            if (meta.type === "video" && meta.videoId) {
-              const videoId = extractYouTubeId(meta.videoId);
-              if (images.length > 0) {
-                const firstImg = images[0];
-                thumbnail = typeof firstImg === 'string' ? firstImg : firstImg.src;
-              } else {
-                thumbnail = getYouTubeThumbnail(videoId);
-              }
-            }
+            // Generate legacy fields for backwards compatibility
+            const { type, images, info, videoId, thumbnail } = buildLegacyFields(content);
 
             works.push({
               id: `${entry.name}-${projectFolder.name}`,
               title: meta.title || "",
-              type: meta.type || "image",
+              type: type,
               client: meta.client || "",
               industry: meta.industry || "",
               contribution: meta.contribution || "",
               date: meta.date || "",
               style: meta.style || "",
               software: meta.software || "",
-              info: meta.info || "",
+              info: info,
               featured: meta.featured || false,
-              videoId: meta.videoId ? extractYouTubeId(meta.videoId) : "",
+              videoId: videoId,
               images: images,
+              content: content,
               thumbnail: thumbnail,
               year: year,
               folder: projectFolder.name,

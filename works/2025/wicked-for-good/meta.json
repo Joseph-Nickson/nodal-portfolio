@@ -1,14 +1,24 @@
 {
   "title": "Wicked: For Good",
-  "type": "video",
   "client": "Framestore",
   "industry": "Film",
   "contribution": "Environment TD",
   "date": "2025",
   "style": "Photorealistic",
   "software": "Houdini; Photoshop",
-  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [],
-  "videoId": "uUmdaUaGTPM"
+  "content": [
+    {
+      "type": "image",
+      "src": "image.webp"
+    },
+    {
+      "type": "text",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
+    },
+    {
+      "type": "video",
+      "videoId": "uUmdaUaGTPM"
+    }
+  ]
 }

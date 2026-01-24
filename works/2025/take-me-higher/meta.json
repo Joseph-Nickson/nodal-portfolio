@@ -1,15 +1,33 @@
 {
   "title": "Take Me Higher",
-  "type": "image",
   "client": "Cloudo & Mayhem",
   "industry": "Music",
   "contribution": "Illustration",
   "date": "2025",
   "style": "Stylized",
   "software": "Photoshop",
-  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [
-    "image.png"
+  "content": [
+    {
+      "type": "image",
+      "src": "image.png",
+      "caption": "BIng bong"
+    },
+    {
+      "type": "text",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
+    },
+    {
+      "type": "text",
+      "text": "nicnawnawdwa"
+    },
+    {
+      "type": "video",
+      "videoId": "hrP0osj4Ga8"
+    },
+    {
+      "type": "text",
+      "text": "daw"
+    }
   ]
 }

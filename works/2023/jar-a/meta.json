@@ -1,19 +1,25 @@
 {
   "title": "Jar A",
-  "type": "image",
   "client": "Personal",
   "industry": "Personal",
   "contribution": "Illustration",
   "date": "2023",
   "style": "Graphic",
   "software": "Photoshop",
-  "info": "Test abcLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [
-    "image.jpg",
+  "content": [
     {
+      "type": "image",
+      "src": "image.jpg"
+    },
+    {
+      "type": "image",
       "src": "image2.jpg",
       "caption": "TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw TEST Loridadw"
+    },
+    {
+      "type": "text",
+      "text": "Test abcLorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
     }
   ]
 }

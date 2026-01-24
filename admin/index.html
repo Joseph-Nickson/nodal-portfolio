@@ -44,11 +44,6 @@
                 <select id="industryFilter">
                     <option value="">All Industries</option>
                 </select>
-                <select id="typeFilter">
-                    <option value="">All Types</option>
-                    <option value="image">Images</option>
-                    <option value="video">Videos</option>
-                </select>
             </div>
 
             <div class="works-table">
@@ -147,39 +142,16 @@
                         </div>
 
                         <div class="form-group">
-                            <label>Description / Info</label>
-                            <textarea
-                                name="info"
-                                rows="4"
-                                placeholder="Describe your involvement, techniques used, or any other details..."
-                            ></textarea>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label>Type *</label>
-                                <select name="type" required>
-                                    <option value="image">Image</option>
-                                    <option value="video">Video</option>
-                                </select>
+                            <label>Content</label>
+                            <p class="form-hint">Add images, text blocks, or YouTube videos. Drag to reorder. Text containing only a YouTube URL will embed the video.</p>
+                            <div id="contentGrid" class="content-grid"></div>
+                            <div class="content-add-buttons">
+                                <label class="btn btn-small btn-secondary">
+                                    + Image
+                                    <input type="file" accept="image/*" multiple id="imageFileInput" style="display: none;">
+                                </label>
+                                <button type="button" class="btn btn-small btn-secondary" id="addTextBtn">+ Text</button>
                             </div>
-                            <div
-                                class="form-group"
-                                id="videoIdGroup"
-                                style="display: none"
-                            >
-                                <label>YouTube Video ID</label>
-                                <input
-                                    type="text"
-                                    name="videoId"
-                                    placeholder="e.g., dQw4w9WgXcQ"
-                                />
-                            </div>
-                        </div>
-
-                        <div class="form-group">
-                            <label>Images</label>
-                            <div id="imagesGrid" class="images-grid"></div>
                         </div>
 
                         <div class="form-actions">
@@ -201,14 +173,15 @@
 
         <div id="buildStatus" class="build-status"></div>
 
-        <!-- Caption edit modal -->
-        <div id="captionModal" class="caption-modal">
+        <!-- Content edit modal (for text blocks and image captions) -->
+        <div id="contentEditModal" class="caption-modal">
             <div class="caption-modal-content">
-                <h3>Image Caption</h3>
-                <textarea id="captionText" placeholder="Add a caption for this image..."></textarea>
+                <h3 id="contentEditTitle">Edit Content</h3>
+                <textarea id="contentEditText" placeholder="Enter text content..."></textarea>
+                <p class="form-hint" id="contentEditHint">Paste a YouTube URL to embed a video instead of text.</p>
                 <div class="caption-modal-actions">
-                    <button type="button" class="btn btn-secondary" id="captionCancel">Cancel</button>
-                    <button type="button" class="btn btn-primary" id="captionSave">Save</button>
+                    <button type="button" class="btn btn-secondary" id="contentEditCancel">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="contentEditSave">Save</button>
                 </div>
             </div>
         </div>

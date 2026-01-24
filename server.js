@@ -104,34 +104,6 @@ function parseFeatured(value, defaultValue = false) {
   return value === "true" || value === "on" || value === true;
 }
 
-async function processImageUploads(files, destinationPath, captions = [], startIndex = 0) {
-  const images = [];
-
-  if (!files || files.length === 0) return images;
-
-  for (let i = 0; i < files.length; i++) {
-    const file = files[i];
-    const ext = path.extname(file.originalname);
-    const imageIndex = startIndex + i;
-    const imageName =
-      imageIndex === 0 ? `image${ext}` : `image${imageIndex + 1}${ext}`;
-    const destPath = path.join(destinationPath, imageName);
-
-    await fs.copyFile(file.path, destPath);
-    await fs.unlink(file.path);
-
-    // Include caption if provided
-    const caption = captions[i] || "";
-    if (caption) {
-      images.push({ src: imageName, caption });
-    } else {
-      images.push(imageName);
-    }
-  }
-
-  return images;
-}
-
 async function cleanupTempFiles(files) {
   if (!files) return;
 
@@ -147,23 +119,15 @@ async function cleanupTempFiles(files) {
 function buildMetaData(data, existingMeta = {}) {
   const meta = {
     title: data.title || existingMeta.title || "",
-    type: data.type || existingMeta.type || "image",
     client: data.client || existingMeta.client || "",
     industry: data.industry || existingMeta.industry || "",
     contribution: data.contribution || existingMeta.contribution || "",
     date: data.date || existingMeta.date || "",
     style: data.style || existingMeta.style || "",
     software: data.software || existingMeta.software || "",
-    info: data.info || existingMeta.info || "",
     featured: parseFeatured(data.featured, existingMeta.featured),
-    images: data.images || existingMeta.images || [],
+    content: data.content || existingMeta.content || [],
   };
-
-  if (meta.type === "video" && data.videoId) {
-    meta.videoId = data.videoId;
-  } else if (meta.type !== "video") {
-    delete meta.videoId;
-  }
 
   return meta;
 }
@@ -221,11 +185,8 @@ app.post(
         contribution,
         style,
         software,
-        info,
-        type,
-        videoId,
         featured,
-        pendingCaptions,
+        content: contentJson,
       } = req.body;
 
       if (!title || !date) {
@@ -241,10 +202,41 @@ app.post(
       await fs.mkdir(projectPath, { recursive: true });
       console.log(`Created directory: ${projectPath}`);
 
-      // Parse captions for new uploads
-      const captions = pendingCaptions ? JSON.parse(pendingCaptions) : [];
-      const images = await processImageUploads(req.files, projectPath, captions);
-      console.log(`Saved ${images.length} images`);
+      // Parse content and pending image indices
+      let content = contentJson ? JSON.parse(contentJson) : [];
+      // Process uploaded images and update content array
+      let fileIndex = 0;
+      for (let i = 0; i < content.length; i++) {
+        if (content[i]._pending && content[i].type === "image") {
+          if (req.files && req.files[fileIndex]) {
+            const file = req.files[fileIndex];
+            const ext = path.extname(file.originalname);
+            const imageName = fileIndex === 0 ? `image${ext}` : `image${fileIndex + 1}${ext}`;
+            const destPath = path.join(projectPath, imageName);
+
+            await fs.copyFile(file.path, destPath);
+            await fs.unlink(file.path);
+
+            content[i] = {
+              type: "image",
+              src: imageName,
+              caption: content[i].caption || ""
+            };
+            fileIndex++;
+          }
+        }
+      }
+
+      // Clean up content items (remove internal markers)
+      content = content.map(item => {
+        const cleaned = { ...item };
+        delete cleaned._pending;
+        // Remove empty captions
+        if (cleaned.type === "image" && !cleaned.caption) {
+          delete cleaned.caption;
+        }
+        return cleaned;
+      });
 
       const meta = buildMetaData({
         title,
@@ -254,11 +246,8 @@ app.post(
         date,
         style,
         software,
-        info,
-        type,
-        videoId,
         featured,
-        images,
+        content,
       });
 
       const metaPath = path.join(projectPath, "meta.json");
@@ -299,12 +288,8 @@ app.put(
         contribution,
         style,
         software,
-        info,
-        type,
-        videoId,
         featured,
-        existingImages,
-        pendingCaptions,
+        content: contentJson,
       } = req.body;
 
       const works = await getWorks();
@@ -341,29 +326,48 @@ app.put(
         console.log("No existing meta.json found, creating new one");
       }
 
-      // Parse existing images with captions from client
-      let images = [];
-      if (existingImages) {
-        const parsedExisting = JSON.parse(existingImages);
-        images = parsedExisting.map(img => {
-          // Extract just the filename from the path
-          const filename = img.src.split('/').pop();
-          if (img.caption) {
-            return { src: filename, caption: img.caption };
+      let content = contentJson ? JSON.parse(contentJson) : existingMeta.content || [];
+
+      // Process uploaded images and update content array
+      let fileIndex = 0;
+      let existingImageCount = content.filter(c => c.type === "image" && !c._pending).length;
+
+      for (let i = 0; i < content.length; i++) {
+        if (content[i]._pending && content[i].type === "image") {
+          if (req.files && req.files[fileIndex]) {
+            const file = req.files[fileIndex];
+            const ext = path.extname(file.originalname);
+            const imageNum = existingImageCount + fileIndex;
+            const imageName = imageNum === 0 ? `image${ext}` : `image${imageNum + 1}${ext}`;
+            const destPath = path.join(newPath, imageName);
+
+            await fs.copyFile(file.path, destPath);
+            await fs.unlink(file.path);
+
+            content[i] = {
+              type: "image",
+              src: imageName,
+              caption: content[i].caption || ""
+            };
+            fileIndex++;
           }
-          return filename;
-        });
+        }
       }
 
-      // Process new uploads with their captions
-      const captions = pendingCaptions ? JSON.parse(pendingCaptions) : [];
-      const newImages = await processImageUploads(
-        req.files,
-        newPath,
-        captions,
-        images.length,
-      );
-      images = [...images, ...newImages];
+      // Clean up content items
+      content = content.map(item => {
+        const cleaned = { ...item };
+        delete cleaned._pending;
+        // For existing images, extract just filename from path
+        if (cleaned.type === "image" && cleaned.src) {
+          cleaned.src = cleaned.src.split('/').pop();
+        }
+        // Remove empty captions
+        if (cleaned.type === "image" && !cleaned.caption) {
+          delete cleaned.caption;
+        }
+        return cleaned;
+      });
 
       const meta = buildMetaData(
         {
@@ -374,11 +378,8 @@ app.put(
           date,
           style,
           software,
-          info,
-          type,
-          videoId,
           featured,
-          images,
+          content,
         },
         existingMeta,
       );

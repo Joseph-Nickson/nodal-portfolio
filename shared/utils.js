@@ -40,6 +40,86 @@ function extractYouTubeId(url) {
 }
 
 /**
+ * Normalize an image entry into {src, caption}
+ * @param {string|Object} img - Image entry (string filename or {src, caption} object)
+ * @returns {{src: string, caption: string|null}} Normalized image data
+ */
+function normalizeImageEntry(img) {
+  if (typeof img === "string") {
+    return { src: img, caption: null };
+  }
+  if (!img || typeof img !== "object") {
+    return { src: "", caption: null };
+  }
+  return {
+    src: img.src || "",
+    caption: img.caption || null,
+  };
+}
+
+/**
+ * Get image src from image entry (handles both string and object formats)
+ * @param {string|Object} img - Image entry (string filename or {src, caption} object)
+ * @returns {string} Image filename
+ */
+function getImageSrc(img) {
+  return normalizeImageEntry(img).src;
+}
+
+/**
+ * Get image caption from image entry
+ * @param {string|Object} img - Image entry (string filename or {src, caption} object)
+ * @returns {string|null} Caption or null
+ */
+function getImageCaption(img) {
+  return normalizeImageEntry(img).caption;
+}
+
+/**
+ * Get primary media for a work (prefers images over videos)
+ * @param {Object} work - Work object with content/images fields
+ * @returns {Object} Media descriptor
+ */
+function getPrimaryMedia(work) {
+  if (work && Array.isArray(work.content) && work.content.length > 0) {
+    const firstImage = work.content.find((c) => c.type === "image");
+    if (firstImage) {
+      const normalized = normalizeImageEntry(firstImage.src || firstImage);
+      return { type: "image", src: normalized.src, caption: firstImage.caption || normalized.caption };
+    }
+    const firstVideo = work.content.find((c) => c.type === "video");
+    if (firstVideo) {
+      return {
+        type: "video",
+        videoId: firstVideo.videoId,
+        thumbnail: getYouTubeThumbnail(firstVideo.videoId),
+      };
+    }
+  }
+
+  if (work && Array.isArray(work.images) && work.images.length > 0) {
+    const normalized = normalizeImageEntry(work.images[0]);
+    if (normalized.src) {
+      return { type: "image", src: normalized.src, caption: normalized.caption };
+    }
+  }
+
+  if (work && work.videoId) {
+    return {
+      type: "video",
+      videoId: work.videoId,
+      thumbnail: getYouTubeThumbnail(work.videoId),
+    };
+  }
+
+  if (work && work.thumbnail) {
+    return { type: "image", src: work.thumbnail, caption: null };
+  }
+
+  return { type: "none" };
+}
+
+/**
  * Get YouTube thumbnail URL from video ID
  * @param {string} videoId - YouTube video ID
  * @returns {string} Thumbnail URL or empty string
@@ -47,20 +127,6 @@ function extractYouTubeId(url) {
 function getYouTubeThumbnail(videoId) {
   if (!videoId) return "";
   return `https://img.youtube.com/vi/${videoId}/maxresdefault.jpg`;
-}
-
-/**
- * Format semicolon-separated values for display
- * @param {string} value - Semicolon-separated string
- * @returns {string} Comma-separated display string
- */
-function formatMultiValue(value) {
-  if (!value) return "";
-  return value
-    .split(";")
-    .map((v) => v.trim())
-    .filter((v) => v)
-    .join(", ");
 }
 
 /**
@@ -99,7 +165,10 @@ if (typeof module !== "undefined" && module.exports) {
     slugify,
     extractYouTubeId,
     getYouTubeThumbnail,
-    formatMultiValue,
+    normalizeImageEntry,
+    getImageSrc,
+    getImageCaption,
+    getPrimaryMedia,
     getMultiValues,
     escapeHtml,
   };
@@ -111,7 +180,10 @@ if (typeof window !== "undefined") {
     slugify,
     extractYouTubeId,
     getYouTubeThumbnail,
-    formatMultiValue,
+    normalizeImageEntry,
+    getImageSrc,
+    getImageCaption,
+    getPrimaryMedia,
     getMultiValues,
     escapeHtml,
   };

@@ -1,15 +1,20 @@
 {
   "title": "Skull",
-  "type": "image",
   "client": "Personal",
   "industry": "Personal",
   "contribution": "Illustration",
   "date": "2024",
   "style": "",
   "software": "",
-  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [
-    "image.jpeg"
+  "content": [
+    {
+      "type": "image",
+      "src": "image.jpeg"
+    },
+    {
+      "type": "text",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
+    }
   ]
 }

@@ -1,29 +1,7 @@
 Portfolio server running on http://localhost:3000
 Admin interface: http://localhost:3000/admin
 Works directory: /Users/joseph/Documents/Web/works
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/foliage-study/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2023/jar-a/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 18 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 18
-
-Created directory: /Users/joseph/Documents/Web/works/2024/product-re-release
-Saved 1 images
-Created meta.json at /Users/joseph/Documents/Web/works/2024/product-re-release/meta.json
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/product-re-release/meta.json
-Running build script...
-Build completed successfully
-stdout: Scanning for projects...
-Found 19 projects
-
-Data written to /Users/joseph/Documents/Web/data.json
-Total projects: 19
-
-Updated meta.json at /Users/joseph/Documents/Web/works/2024/product-re-release/meta.json
+Updated meta.json at /Users/joseph/Documents/Web/works/2025/wicked-for-good/meta.json
 Running build script...
 Build completed successfully
 stdout: Scanning for projects...

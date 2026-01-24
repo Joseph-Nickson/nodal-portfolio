@@ -1,15 +1,20 @@
 {
   "title": "Love Death & Robots",
-  "type": "video",
   "client": "Axis Studios",
   "industry": "Film",
   "contribution": "Digital Matte Painting",
   "date": "2022",
   "style": "Photorealistic",
   "software": "",
-  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [
-    "image.jpg"
+  "content": [
+    {
+      "type": "image",
+      "src": "image.jpg"
+    },
+    {
+      "type": "text",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
+    }
   ]
 }

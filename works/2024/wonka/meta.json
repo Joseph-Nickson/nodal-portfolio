@@ -1,14 +1,20 @@
 {
   "title": "Wonka",
-  "type": "video",
   "client": "Framestore",
   "industry": "Film",
   "contribution": "Digital Matte Painting",
   "date": "2024",
   "style": "Photorealistic",
   "software": "Nuke; Photoshop",
-  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [],
-  "videoId": "otNh9bTjXWg"
+  "content": [
+    {
+      "type": "video",
+      "videoId": "otNh9bTjXWg"
+    },
+    {
+      "type": "text",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
+    }
+  ]
 }

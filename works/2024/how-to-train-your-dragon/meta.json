@@ -1,14 +1,20 @@
 {
   "title": "How to Train your Dragon",
-  "type": "video",
   "client": "Framestore",
   "industry": "Film",
   "contribution": "Environment TD",
   "date": "2024",
   "style": "Photorealistic",
   "software": "Houdini; Photoshop",
-  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [],
-  "videoId": "22w7z_lT6YM"
+  "content": [
+    {
+      "type": "video",
+      "videoId": "22w7z_lT6YM"
+    },
+    {
+      "type": "text",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
+    }
+  ]
 }

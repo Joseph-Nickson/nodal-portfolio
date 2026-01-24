@@ -1,15 +1,16 @@
 {
   "title": "Product Re-release",
-  "type": "image",
   "client": "Numbers",
   "industry": "Music",
   "contribution": "Illustration",
   "date": "2024",
   "style": "",
   "software": "3ds Max; Photoshop",
-  "info": "",
   "featured": true,
-  "images": [
-    "image.jpg"
+  "content": [
+    {
+      "type": "image",
+      "src": "image.jpg"
+    }
   ]
 }

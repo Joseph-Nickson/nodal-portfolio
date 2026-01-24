@@ -4,28 +4,20 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>Joseph Nickson | Portfolio</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="styles.css" />
     </head>
     <body>
         <nav class="navbar">
-            <div class="nav-left">
-                <span class="nav-name">Joseph Nickson</span>
-                <a
-                    href="#portfolio"
-                    class="nav-link active"
-                    data-section="portfolio"
-                    >Portfolio</a
-                >
-                <a href="#index" class="nav-link" data-section="index">Index</a>
-                <a href="#info" class="nav-link" data-section="info">Info</a>
-            </div>
-            <div class="nav-right">
-                <button id="randomBtn" class="icon-btn" title="Random Work">
-                    ⚃
-                </button>
-                <a href="#" id="showreelLink" class="nav-link">Showreel</a>
-                <a href="/admin" id="adminLink" class="nav-link" style="display: none;">Admin</a>
-            </div>
+            <span class="nav-name">Joseph Nickson</span>
+            <div class="nav-spacer"></div>
+            <a href="#portfolio" class="nav-link active" data-section="portfolio">Portfolio</a>
+            <a href="#" id="showreelLink" class="nav-link">Showreel</a>
+            <a href="#index" class="nav-link" data-section="index">Index</a>
+            <a href="#info" class="nav-link" data-section="info">Info</a>
+            <a href="/admin" id="adminLink" class="nav-link" style="display: none;">Admin</a>
         </nav>
 
         <main>
@@ -55,7 +47,46 @@
             </section>
 
             <section id="portfolio" class="section active">
-                <div class="grid" id="portfolioGrid"></div>
+                <div class="portfolio-loader" id="portfolioLoader">
+                    <div class="loader-spinner"></div>
+                </div>
+
+                <!-- Category Landing (carousel navigation) -->
+                <div class="category-landing" id="categoryLanding">
+                    <div class="category-carousel">
+                        <div class="category-track" id="categoryTrack">
+                            <!-- Tiles generated dynamically by JS -->
+                        </div>
+                        <div class="category-hint-overlay" id="categoryHintOverlay">
+                            <span>↓</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Category View (X/Y grid navigation) -->
+                <div class="category-view hidden" id="categoryView">
+                    <!-- Centered subtle header - entire area is clickable for back navigation -->
+                    <div class="category-header" id="categoryHeaderArea">
+                        <span class="category-back-icon">&#8963;</span>
+                        <span class="category-heading" id="categoryHeading"></span>
+                    </div>
+
+                    <!-- X-axis: Horizontal sliding carousel -->
+                    <div class="work-carousel" id="workCarousel">
+                        <div class="carousel-track" id="carouselTrack">
+                            <!-- Work slides will be generated here -->
+                        </div>
+                        <div class="scroll-hint-overlay" id="scrollHintOverlay">
+                            <span class="scroll-hint-text">↓</span>
+                        </div>
+                    </div>
+
+                    <!-- Y-axis: Details and gallery (scrolled into view) -->
+                    <div class="work-details-panel hidden" id="workDetailsPanel">
+                        <div class="work-details" id="workDetails"></div>
+                        <div class="work-gallery" id="workGallery"></div>
+                    </div>
+                </div>
             </section>
 
             <section id="info" class="section">

@@ -1,14 +1,20 @@
 {
   "title": "Don't Mess With Yordles",
-  "type": "video",
   "client": "Leage of Legends",
   "industry": "Games",
   "contribution": "Digital Matte Painting",
   "date": "2021",
   "style": "",
   "software": "",
-  "info": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta. ",
   "featured": true,
-  "images": [],
-  "videoId": "8QkVYl4r42U"
+  "content": [
+    {
+      "type": "video",
+      "videoId": "8QkVYl4r42U"
+    },
+    {
+      "type": "text",
+      "text": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed et justo fringilla, volutpat ligula in, lacinia odio. Pellentesque lacus dui, commodo at egestas a, laoreet vitae risus. Ut suscipit ut neque non porta."
+    }
+  ]
 }
